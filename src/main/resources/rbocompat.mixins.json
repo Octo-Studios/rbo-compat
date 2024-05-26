@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "it.hurts.sskirillss.rbocompat.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "rbocompat.refmap.json",
+  "mixins": [
+    "EyeOfTheFlugelItemMixin",
+    "FruitOfGrisaiaItemMixin",
+    "KeyOfTheKingsLawItemMixin",
+    "RingOfLokiItemMixin",
+    "RingOfOdinItemMixin",
+    "RingOfThorItemMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
