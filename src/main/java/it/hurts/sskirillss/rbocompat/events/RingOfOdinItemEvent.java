@@ -27,7 +27,9 @@ public class RingOfOdinItemEvent {
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof Player player))
+        int mana = 100000;
+
+        if (!(event.getEntity() instanceof Player player) || !ManaUtils.hasEnoughMana(player, mana))
             return;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing);
@@ -36,9 +38,9 @@ public class RingOfOdinItemEvent {
             return;
 
         if (NBTUtils.getBoolean(stack, "toggled", true)) {
-            ManaUtils.consumeMana(player, 20000);
+            ManaUtils.consumeMana(player, mana);
 
-            event.setAmount(event.getAmount() * 0.5F);
+            event.setAmount(0);
         }
 
         if (!(NBTUtils.getBoolean(stack, "toggled", true))) {
@@ -48,6 +50,7 @@ public class RingOfOdinItemEvent {
 
             if (!(attacker instanceof LivingEntity || target == null))
                 return;
+
             float damage = event.getAmount();
 
             ManaUtils.consumeMana(player, 20000);

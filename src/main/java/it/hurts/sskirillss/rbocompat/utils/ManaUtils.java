@@ -31,4 +31,13 @@ public class ManaUtils {
         getFirstManaItem(player).ifPresent(stack -> ManaItemHandler.instance().requestMana(stack, player, amount, true));
     }
 
+    public static boolean hasEnoughMana(Player player, int requiredMana) {
+        if (player == null || requiredMana <= 0) return false;
+
+        int totalMana = player.getInventory().items.stream()
+                .mapToInt(stack -> ManaItemHandler.instance().requestMana(stack, player, Integer.MAX_VALUE, false))
+                .sum();
+
+        return totalMana >= requiredMana;
+    }
 }
