@@ -53,7 +53,7 @@ public class RingOfOdinItemEvent {
 
             float damage = event.getAmount();
 
-            ManaUtils.consumeMana(player, 20000);
+            ManaUtils.consumeMana(player, mana);
 
             attacker.hurt(source, damage * 0.5F);
         }
