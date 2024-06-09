@@ -1,7 +1,5 @@
 package it.hurts.sskirillss.rbocompat.events;
 
-import com.mojang.datafixers.types.templates.Tag;
-import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.core.BlockPos;
@@ -14,9 +12,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DropExperienceBlock;
-import net.minecraft.world.level.block.RedStoneOreBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -25,12 +20,19 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Mod.EventBusSubscriber
 public class RingOfThorItemEvent {
     private static final TagKey<Block> ORES_TAG = BlockTags.create(new ResourceLocation("forge", "ores"));
+    private static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     private static int consecutiveBlocksMined = 0;
     private static long lastBlockMinedTime = 0;
@@ -40,13 +42,40 @@ public class RingOfThorItemEvent {
         ServerPlayer player = event.getPlayer();
         ServerLevel world = player.serverLevel();
         BlockPos playerPos = player.blockPosition();
-        int radius = 5;
+        int radius = 25;
+        int minY = world.getMinBuildHeight();
 
+        List<CompletableFuture<Map<Block, Integer>>> futures = new ArrayList<>();
+
+        int chunkSize = 25;
+        for (int x = -radius; x <= radius; x += chunkSize) {
+            for (int z = -radius; z <= radius; z += chunkSize) {
+                int finalX = x;
+                int finalZ = z;
+                futures.add(CompletableFuture.supplyAsync(() -> scanArea(world, playerPos, finalX, finalZ, chunkSize, minY), executor));
+            }
+        }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
+            Map<Block, Integer> oreCounts = new HashMap<>();
+            for (CompletableFuture<Map<Block, Integer>> future : futures) {
+                try {
+                    Map<Block, Integer> result = future.get();
+                    result.forEach((block, count) -> oreCounts.merge(block, count, Integer::sum));
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+            oreCounts.forEach((block, count) -> player.sendSystemMessage(Component.literal(block.getName().getString() + ": " + count)));
+        });
+    }
+
+    private static Map<Block, Integer> scanArea(ServerLevel world, BlockPos centerPos, int offsetX, int offsetZ, int chunkSize, int minY) {
         Map<Block, Integer> oreCounts = new HashMap<>();
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                for (int y = playerPos.getY(); y >= 2; y--) {
-                    BlockPos pos = playerPos.offset(x, y, z);
+        for (int x = offsetX; x < offsetX + chunkSize; x++) {
+            for (int z = offsetZ; z < offsetZ + chunkSize; z++) {
+                for (int y = centerPos.getY(); y >= minY; y--) {
+                    BlockPos pos = centerPos.offset(x, y - centerPos.getY(), z);
                     BlockState state = world.getBlockState(pos);
                     Block block = state.getBlock();
                     if (block.defaultBlockState().is(ORES_TAG)) {
@@ -55,11 +84,7 @@ public class RingOfThorItemEvent {
                 }
             }
         }
-
-        for (Map.Entry<Block, Integer> entry : oreCounts.entrySet()) {
-            player.sendSystemMessage(Component.literal(entry.getKey().getName().getString() + ": " + entry.getValue()));
-        }
-
+        return oreCounts;
     }
 
     @SubscribeEvent
