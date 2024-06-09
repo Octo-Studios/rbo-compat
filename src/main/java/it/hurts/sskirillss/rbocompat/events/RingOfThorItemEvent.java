@@ -1,5 +1,8 @@
 package it.hurts.sskirillss.rbocompat.events;
 
+import it.hurts.sskirillss.rbocompat.utils.ManaUtils;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.level.BlockEvent;
@@ -10,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
+import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
 public class RingOfThorItemEvent {
@@ -19,50 +23,39 @@ public class RingOfThorItemEvent {
 
     @SubscribeEvent
     public static void onBreakBlock(BlockEvent.BreakEvent event) {
-        Player player = event.getPlayer();
+        ItemStack stack = EntityUtils.findEquippedCurio(event.getPlayer(), BotaniaItems.thorRing);
+
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
+            return;
 
         long currentTime = System.currentTimeMillis();
-        System.out.println(getPickaxeEfficiency(player));
 
-        if (currentTime - lastBlockMinedTime <= getPickaxeEfficiency(player))
-            consecutiveBlocksMined++;
-        else
-            consecutiveBlocksMined = 0;
+        if (currentTime - lastBlockMinedTime <= getPickaxeEfficiency(event.getPlayer())) consecutiveBlocksMined++;
+        else consecutiveBlocksMined = 0;
 
         lastBlockMinedTime = currentTime;
-
     }
 
     @SubscribeEvent
     public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-        Player player = event.getEntity();
+        ItemStack stack = EntityUtils.findEquippedCurio(event.getEntity(), BotaniaItems.thorRing);
 
-        ItemStack heldItem = player.getMainHandItem();
-        float newSpeed = event.getOriginalSpeed() + (consecutiveBlocksMined * 0.1f);
-        System.out.println(newSpeed);
-        event.setNewSpeed(newSpeed);
-
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
+            return;
+        System.out.println(event.getOriginalSpeed() + (consecutiveBlocksMined * 0.3f));
+        event.setNewSpeed(event.getOriginalSpeed() + (consecutiveBlocksMined * 0.3f));
     }
 
     public static double getPickaxeEfficiency(Player player) {
         ItemStack heldItem = player.getMainHandItem();
 
-        if (heldItem.getItem() instanceof TieredItem pickaxe)
-            return calculate(pickaxe.getTier().getLevel());
+        double calculate = heldItem.getItem().getDestroySpeed(new ItemStack(heldItem.getItem()), player.getBlockStateOn()) + (consecutiveBlocksMined * 0.3f);
+        double baseValue = 1600;
+        double decrementPerUnit = 200;
 
-        return 0;
-    }
+        if (calculate <= 2) return baseValue;
 
-    public static double calculate(double input) {
-        double baseValue = 1700;
-        double decrementPerUnit = 230;
-
-        if (input <= 2) {
-            return baseValue;
-        }
-
-        double result = baseValue - (input * decrementPerUnit);
-        return Math.max(result, 0);
+        return 550 + ((baseValue + calculate + decrementPerUnit) / calculate);
     }
 
 }
