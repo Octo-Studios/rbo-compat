@@ -33,7 +33,9 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
     public RelicData constructDefaultRelicData() {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder("entropy").build())
+                        .ability(AbilityData.builder("entropy")
+                                .icon((player, stack, ability) -> ability + (NBTUtils.getBoolean(stack, "toggled", true) ? "_on" : "_off"))
+                                .build())
                         .ability(AbilityData.builder("revelation")
                                 .active(CastData.builder()
                                         .type(CastType.INSTANTANEOUS)
