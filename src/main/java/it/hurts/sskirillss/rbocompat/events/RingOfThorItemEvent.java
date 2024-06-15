@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.events;
 
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,9 +22,7 @@ import java.util.Set;
 
 @Mod.EventBusSubscriber
 public class RingOfThorItemEvent {
-    private static int consecutiveBlocksMined = 0;
-    private static long lastBlockMinedTime = 0;
-
+    private static final String TAG_STACKS = "stacks";
 
     @SubscribeEvent
     public static void onBreakBlock(BlockEvent.BreakEvent event) {
@@ -32,12 +31,12 @@ public class RingOfThorItemEvent {
         if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
             return;
 
-        long currentTime = System.currentTimeMillis();
+        int stacks = NBTUtils.getInt(stack, TAG_STACKS, 0);
 
-        if (currentTime - lastBlockMinedTime <= getPickaxeEfficiency(event.getPlayer())) consecutiveBlocksMined++;
-        else consecutiveBlocksMined = 0;
+        if (stacks >= 100)
+            return;
 
-        lastBlockMinedTime = currentTime;
+        NBTUtils.setInt(stack, TAG_STACKS, ++stacks);
     }
 
     @SubscribeEvent
@@ -47,19 +46,8 @@ public class RingOfThorItemEvent {
         if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
             return;
 
-        event.setNewSpeed(event.getOriginalSpeed() + (consecutiveBlocksMined * 0.3f));
+        int stacks = NBTUtils.getInt(stack, TAG_STACKS, 0);
+
+        event.setNewSpeed(event.getOriginalSpeed() + (event.getOriginalSpeed() * (stacks * 0.025F)));
     }
-
-    public static double getPickaxeEfficiency(Player player) {
-        ItemStack heldItem = player.getMainHandItem();
-
-        double calculate = heldItem.getItem().getDestroySpeed(new ItemStack(heldItem.getItem()), player.getBlockStateOn()) + (consecutiveBlocksMined * 0.3f);
-        double baseValue = 1600;
-        double decrementPerUnit = 200;
-
-        if (calculate <= 2) return baseValue;
-
-        return 550 + ((baseValue + calculate + decrementPerUnit) / calculate);
-    }
-
 }
