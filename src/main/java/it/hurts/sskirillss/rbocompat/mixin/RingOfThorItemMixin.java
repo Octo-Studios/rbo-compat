@@ -39,7 +39,6 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
 
     @Override
     public RelicData constructDefaultRelicData() {
-
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("entropy")
@@ -50,7 +49,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
                                         .type(CastType.INSTANTANEOUS)
                                         .build())
                                 .stat(StatData.builder("radius")
-                                        .initialValue(2D, 6D)
+                                        .initialValue(9D, 19D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.25D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
@@ -72,7 +71,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
         if (ability.equals("revelation")) {
             BlockPos pos = player.blockPosition();
             Level world = player.level();
-            int range = 25;
+            int range = (int) this.getAbilityValue(stack, "revelation", "radius");
             long seedRandom = world.random.nextLong();
 
             for (BlockPos pos_ : BlockPos.betweenClosed(pos.offset(-range, -range, -range), pos.offset(range, range, range))) {
