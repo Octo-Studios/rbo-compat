@@ -24,7 +24,6 @@ public class RingOfThorItemEvent {
     private static int consecutiveBlocksMined = 0;
     private static long lastBlockMinedTime = 0;
 
-
     @SubscribeEvent
     public static void onBreakBlock(BlockEvent.BreakEvent event) {
         ItemStack stack = EntityUtils.findEquippedCurio(event.getPlayer(), BotaniaItems.thorRing);

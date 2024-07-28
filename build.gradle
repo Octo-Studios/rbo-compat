@@ -185,6 +185,13 @@ publishing {
         }
     }
 }
+tasks.withType(JavaExec) {
+    jvmArgs = [
+            "-Dmixin.debug=false",
+            "-Dmixin.debug.export=false",
+            "-Dmixin.debug.verbose=false"
+    ]
+}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
