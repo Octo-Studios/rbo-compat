@@ -15,7 +15,7 @@ public class EntityRegistry {
 
     public static final RegistryObject<EntityType<PixieEntity>> PIXIE = ENTITIES.register("pixie", () ->
             EntityType.Builder.of(PixieEntity::new, MobCategory.MISC)
-                    .sized(1, 1)
+                    .sized(0.5F, 0.5F)
                     .build(new ResourceLocation(RBOCompat.MODID, "pixie").toString()));
 
 

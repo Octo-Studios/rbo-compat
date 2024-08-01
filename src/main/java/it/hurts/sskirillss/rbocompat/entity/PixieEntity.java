@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
@@ -12,46 +13,38 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class PixieEntity extends ThrowableProjectile {
-    public PixieEntity(EntityType<? extends ThrowableProjectile> p_20966_, Level p_20967_) {
+public class PixieEntity extends FlyingMob {
+    private static final double ORBIT_RADIUS = 5.0;
+    private static final double ORBIT_SPEED = 0.05;
+    private double angle;
+
+    public PixieEntity(EntityType<? extends FlyingMob> p_20966_, Level p_20967_) {
         super(p_20966_, p_20967_);
     }
 
     @Override
     public void tick() {
-//        super.tick();
-//
-//        Vec3 targetPos = getVec3();
-//        Vec3 currentPos = this.position();
-//
-//        Vec3 direction = targetPos.subtract(currentPos);
-//        Vec3 desiredMovement = direction.normalize().scale(0.2);
-//
-//        Vec3 newMovement = this.getDeltaMovement().lerp(desiredMovement, 0.5);
-//
-//        this.setDeltaMovement(newMovement);
-//        this.move(MoverType.SELF, this.getDeltaMovement());
+        super.tick();
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            angle += ORBIT_SPEED;
+            if (angle >= 2 * Math.PI) {
+                angle = 0;
+            }
+
+            // Вычисляем новую позицию
+            double x = player.getX() + ORBIT_RADIUS * Math.cos(angle);
+            double z = player.getZ() + ORBIT_RADIUS * Math.sin(angle);
+            double y = player.getY() + 1.5;
+
+            this.setPos(x, y, z);
+        }
     }
 
-    private @NotNull Vec3 getVec3() {
-        Player targetPlayer = Minecraft.getInstance().player;
-
-        double flyRadius = 2.0;
-        double amplitude = 1.0;
-        double frequency = 1.0;
-
-        double angle = this.tickCount * 0.1;
-
-        double targetX = targetPlayer.getX() + flyRadius * Math.cos(angle);
-        double targetZ = targetPlayer.getZ() + flyRadius * Math.sin(angle);
-        double targetY = targetPlayer.getY() + amplitude * Math.sin(frequency * angle);
-
-        return new Vec3(targetX, targetY, targetZ);
-    }
 
     @Override
     protected void defineSynchedData() {
-
+        super.defineSynchedData();
     }
 
 
