@@ -8,6 +8,7 @@
     "EyeOfTheFlugelItemMixin",
     "FruitOfGrisaiaItemMixin",
     "KeyOfTheKingsLawItemMixin",
+    "RelicBaubleItemMixin",
     "RingOfLokiItemMixin",
     "RingOfOdinItemMixin",
     "RingOfThorItemMixin"
