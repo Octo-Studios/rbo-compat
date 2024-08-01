@@ -92,18 +92,13 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean held) {
-        super.inventoryTick(stack, world, entity, slot, held);
-    }
-
-    @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
 //        Player player = Minecraft.getInstance().player;
 //        if (player == null || player.level().isClientSide())
 //            return;
 
    //     Level world = player.level();
-        System.out.println("GGG");
+      //  System.out.println("GGG");
 //        for (Entity entity : world.getEntities(player, player.getBoundingBox().inflate(10))) {
 //            if (entity instanceof Player) break;
 //
