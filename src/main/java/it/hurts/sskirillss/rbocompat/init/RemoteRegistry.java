@@ -14,12 +14,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 @Mod.EventBusSubscriber(modid = RBOCompat.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class RemoteRegistry {
 
-    @SubscribeEvent
-    public static void setupClient(EntityAttributeCreationEvent event) {
-        event.put(EntityRegistry.PIXIE.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D).build());
-
-    }
 
     @SubscribeEvent
     public static void setupClient(final FMLClientSetupEvent event) {
