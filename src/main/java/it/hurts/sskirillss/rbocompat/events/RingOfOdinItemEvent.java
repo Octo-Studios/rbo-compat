@@ -1,22 +1,14 @@
 package it.hurts.sskirillss.rbocompat.events;
 
-import it.hurts.sskirillss.rbocompat.mixin.RingOfOdinItemMixin;
 import it.hurts.sskirillss.rbocompat.utils.ManaUtils;
-import it.hurts.sskirillss.relics.init.ItemRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
-import it.hurts.sskirillss.relics.items.relics.necklace.HolyLocketItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

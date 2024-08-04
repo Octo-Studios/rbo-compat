@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin;
+package it.hurts.sskirillss.rbocompat.mixin.item;
 
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;

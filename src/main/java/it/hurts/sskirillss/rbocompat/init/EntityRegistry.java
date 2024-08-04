@@ -32,7 +32,7 @@ public class EntityRegistry {
     @SubscribeEvent
     public static void setupClient(EntityAttributeCreationEvent event) {
         event.put(PIXIE.get(),
-                Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D)
+                Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 2D)
                         .add(Attributes.MOVEMENT_SPEED, 0.25D).build());
     }
 }
