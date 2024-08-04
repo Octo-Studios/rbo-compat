@@ -12,9 +12,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class PixieEntity extends Mob {
+
     @Setter
-    @Getter
-    private Player owner;
+    private Player player;
 
     private double angle;
 
@@ -29,7 +29,7 @@ public class PixieEntity extends Mob {
     public void tick() {
         super.tick();
 
-        if (owner == null) return;
+        if (player == null) return;
 
         moveAroundThePlayerInACircle();
     }
@@ -42,20 +42,20 @@ public class PixieEntity extends Mob {
         if (angle >= 2 * Math.PI)
             angle = 0;
 
-        HitResult result = this.level().clip(new ClipContext(new Vec3(this.getX(), owner.getY() + 2, this.getZ()), new Vec3(this.getX(),
-                owner.getY() - 2, this.getZ()), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        HitResult result = this.level().clip(new ClipContext(new Vec3(this.getX(), player.getY() + 2, this.getZ()), new Vec3(this.getX(),
+                player.getY() - 2, this.getZ()), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
 
         Vec3 position = result.getLocation();
         if (result.getType() == HitResult.Type.MISS || level().getBlockState(new BlockPos((int) position.x, (int) position.y, (int) position.z)).blocksMotion())
-            position = owner.position();
+            position = player.position();
 
-        // this.setDeltaMovement(this.getDeltaMovement().add(0, new Vec3(x, y, z).subtract(this.position()).normalize().scale(0.5).y,0));
+        var x = player.getX() + orbitRadius * Math.cos(angle);
+        var y = position.y + 0.5;
+        var z = player.getZ() + orbitRadius * Math.sin(angle);
 
-        this.setPos(
-                owner.getX() + orbitRadius * Math.cos(angle),
-                owner.getZ() + orbitRadius * Math.sin(angle),
-                position.y + 0.5
-        );
+        // this.setDeltaMovement(this.getDeltaMovement().add(0, new Vec3(x, y, z).subtract(this.position()).normalize().scale(0.5).y, 0));
+
+        this.setPos(x, y, z);
     }
 
     @Override
