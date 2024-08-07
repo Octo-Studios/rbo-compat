@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.init;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.renderer.entities.ObserverRender;
 import it.hurts.sskirillss.rbocompat.client.renderer.entities.PixieRender;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +24,7 @@ public class RemoteRegistry {
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.PIXIE.get(), PixieRender::new);
+        event.registerEntityRenderer(EntityRegistry.OBSERVER.get(), ObserverRender::new);
 
     }
 }

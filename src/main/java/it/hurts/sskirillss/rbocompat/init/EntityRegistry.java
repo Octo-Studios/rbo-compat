@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.init;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.entity.ObserverEntity;
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -24,6 +25,11 @@ public class EntityRegistry {
                     .sized(0.5F, 0.5F)
                     .build(new ResourceLocation(RBOCompat.MODID, "pixie").toString()));
 
+    public static final RegistryObject<EntityType<ObserverEntity>> OBSERVER = ENTITIES.register("observer", () ->
+            EntityType.Builder.of(ObserverEntity::new, MobCategory.MISC)
+                    .sized(1, 1)
+                    .build(new ResourceLocation(RBOCompat.MODID, "observer").toString()));
+
 
     public static void register() {
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -31,8 +37,7 @@ public class EntityRegistry {
 
     @SubscribeEvent
     public static void setupClient(EntityAttributeCreationEvent event) {
-        event.put(PIXIE.get(),
-                Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 2D)
-                        .add(Attributes.MOVEMENT_SPEED, 0.25D).build());
+        event.put(PIXIE.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1D).build());
+        event.put(OBSERVER.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1D).build());
     }
 }

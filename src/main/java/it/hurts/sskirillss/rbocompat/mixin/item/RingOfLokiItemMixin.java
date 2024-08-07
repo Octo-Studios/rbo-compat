@@ -86,12 +86,12 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
         if (ability.equals("guardian")) {
             Level level = player.getCommandSenderWorld();
 
-            if(player.getCommandSenderWorld().isClientSide)
+            if(level.isClientSide)
                 return;
 
             setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
 
-            PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), player.level());
+            PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
             pixieEntity.setPlayer(player);
 
             level.addFreshEntity(pixieEntity);
