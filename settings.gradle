@@ -1,5 +1,8 @@
 pluginManagement {
     repositories {
+        maven { url = 'https://maven.parchmentmc.org' }
+    }
+    repositories {
         gradlePluginPortal()
         maven {
             name = 'NeoForged'
