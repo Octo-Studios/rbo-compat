@@ -70,8 +70,7 @@ public class EyeOfTheFlugelItemMixin extends RelicItem implements ICurioItem, IR
                                         .formatValue(value -> (int) (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
-                        .ability(AbilityData.builder("protecting")
-                                .build())
+                       .ability(AbilityData.builder("gaze").build())
                         .build())
                 .leveling(new LevelingData(100, 10, 100))
                 .build();

@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.entity;
 
 import lombok.Setter;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.Mob;
@@ -19,9 +20,12 @@ public class ObserverEntity extends FlyingMob {
     @Override
     public void tick() {
         super.tick();
+        player = this.level().getNearestPlayer(this, 10);
 
         if (player == null) return;
 
-        //   this.setPos(player.getX(), player.getY() + 2, player.getX());
+        this.lookAt(EntityAnchorArgument.Anchor.EYES, player.getEyePosition(1F));
+        this.lookAt(EntityAnchorArgument.Anchor.FEET, player.getEyePosition(1F));
     }
+
 }

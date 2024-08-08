@@ -93,6 +93,7 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
 
             PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
             pixieEntity.setPlayer(player);
+            pixieEntity.setPos(player.getX(), player.getY(), player.getZ());
 
             level.addFreshEntity(pixieEntity);
         }

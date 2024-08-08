@@ -12,8 +12,6 @@ import net.minecraftforge.registries.RegistryObject;
 public class ItemRegistry {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, RBOCompat.MODID);
 
-    public static final RegistryObject<RelicItem> RING_OF_AESIR = ITEMS.register("aesir_ring", RingOfAesirItem::new);
-
     public static void register() {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }

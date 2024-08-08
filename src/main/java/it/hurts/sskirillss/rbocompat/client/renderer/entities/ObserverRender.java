@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
 
 public class ObserverRender<T extends Entity> extends EntityRenderer<T> {
     private static final ResourceLocation location = new ResourceLocation(RBOCompat.MODID, "textures/entity/observer.png");
@@ -34,16 +35,6 @@ public class ObserverRender<T extends Entity> extends EntityRenderer<T> {
         poseStack.scale(1.5F, 1.5F, 1.5F);
         poseStack.scale(1, -1, 1);
         poseStack.translate(0, -1.55, 0);
-
-        Player player = Minecraft.getInstance().player;
-
-        if (player != null) {
-            double deltaX = player.getX() - entity.getX();
-            double deltaZ = player.getZ() - entity.getZ();
-            float yaw = (float) Math.toDegrees(Math.atan2(deltaX, deltaZ)) + 180;
-
-            poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
-        }
 
         model.renderToBuffer(poseStack, buffer.getBuffer(RenderType.entityTranslucent(location)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
