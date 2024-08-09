@@ -86,7 +86,7 @@ public class EyeOfTheFlugelItemMixin extends RelicItem implements ICurioItem, IR
            // setAbilityCooldown(stack, "observer", (int) Math.round(getAbilityValue(stack, "observer", "duration") * 20));
 
             ObserverEntity observerEntity = new ObserverEntity(EntityRegistry.OBSERVER.get(), level);
-            observerEntity.setPos(player.getX(), player.getY() + 2, player.getZ());
+            observerEntity.setPos(player.getX(), player.getY() + 1.75, player.getZ());
             observerEntity.setPlayer(player);
 
             level.addFreshEntity(observerEntity);

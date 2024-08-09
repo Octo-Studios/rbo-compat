@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
@@ -32,9 +33,15 @@ public class ObserverRender<T extends Entity> extends EntityRenderer<T> {
     public void render(@NotNull T entity, float p_114486_, float p_114487_, PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
 
-        poseStack.scale(1.5F, 1.5F, 1.5F);
-        poseStack.scale(1, -1, 1);
-        poseStack.translate(0, -1.55, 0);
+        poseStack.translate(0, 2, 0);
+        Vec3 angle = entity.getLookAngle();
+        poseStack.translate(angle.x, angle.y, angle.z);
+
+        double angleY = Math.toDegrees(Math.atan2(angle.x, angle.z));
+        double angleZ = Math.toDegrees(Math.atan2(Math.sqrt(angle.x * angle.x + angle.z * angle.z), angle.y));
+
+        poseStack.mulPose(Axis.YP.rotationDegrees((float) angleY));
+        poseStack.mulPose(Axis.XP.rotationDegrees((float) angleZ + 90F));
 
         model.renderToBuffer(poseStack, buffer.getBuffer(RenderType.entityTranslucent(location)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 

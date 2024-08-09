@@ -1,9 +1,14 @@
 package it.hurts.sskirillss.rbocompat.entity;
 
 import it.hurts.sskirillss.relics.init.EffectRegistry;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
+import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -14,15 +19,19 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.awt.*;
 import java.util.UUID;
 
 public class PixieEntity extends Mob {
 
     @Setter
     private Player player;
+
+    @Getter
     @Setter
     private UUID playerUUID;
 
@@ -34,7 +43,6 @@ public class PixieEntity extends Mob {
         this.noPhysics = true;
         this.setNoGravity(true);
     }
-
 
     @Override
     public void tick() {
@@ -48,8 +56,6 @@ public class PixieEntity extends Mob {
         moveAroundThePlayerInACircle();
         collide();
 
-        if (this.hasEffect(EffectRegistry.PARALYSIS.get()))
-            removeEffect(EffectRegistry.PARALYSIS.get());
     }
 
     private void moveAroundThePlayerInACircle() {
@@ -67,30 +73,76 @@ public class PixieEntity extends Mob {
         if (result.getType() == HitResult.Type.MISS || level().getBlockState(new BlockPos((int) position.x, (int) position.y, (int) position.z)).blocksMotion())
             position = player.position();
 
-        double x = player.getX() + orbitRadius * Math.cos(angle);
-        double y = position.y + 0.5;
-        double z = player.getZ() + orbitRadius * Math.sin(angle);
-
-        // this.setDeltaMovement(this.getDeltaMovement().add(0, new Vec3(x, y, z).subtract(this.position()).normalize().scale(0.5).y, 0));
-
-        this.setPos(x, y, z);
+        this.setPos(
+                player.getX() + orbitRadius * Math.cos(angle),
+                position.y + 0.5,
+                player.getZ() + orbitRadius * Math.sin(angle)
+        );
     }
 
     private void collide() {
         BlockPos blockPos = this.blockPosition();
-        Block block = this.level().getBlockState(this.blockPosition()).getBlock();
+        BlockState blockState = level().getBlockState(blockPos);
+        Block block = level().getBlockState(this.blockPosition()).getBlock();
 
-        if (block instanceof CropBlock) {
-            //  System.out.println(level().getBlockEntity(blockPos).saveWithoutMetadata());
-//            if (this.level().isClientSide)
-//                this.level().levelEvent(2005, blockPos, 0); // Показать частицы костной муки
+        if (block instanceof CropBlock cropBlock) {
+            if (tickCount % 2 != 0) return;
 
+            int currentAge = cropBlock.getAge(blockState);
+            int maxAge = cropBlock.getMaxAge();
 
+            if (currentAge < maxAge) {
+                level().setBlock(blockPos, cropBlock.getStateForAge(currentAge + 1), 2);
+
+                for (int i = 0; i < 10; i++) {
+                    ((ServerLevel) level()).sendParticles(
+                            ParticleTypes.HAPPY_VILLAGER,
+                            blockPos.getX() + level().random.nextDouble() * 0.6D + 0.2D,
+                            blockPos.getY() + level().random.nextDouble() * 0.6D + 0.2D,
+                            blockPos.getZ() + level().random.nextDouble() * 0.6D + 0.2D,
+                            1,
+                            0.0D, 0.0D, 0.0D,
+                            0.1D
+                    );
+                }
+
+            }
         } else {
-            for (Entity searchEntity : this.level().getEntities(this, this.getBoundingBox()))
-                if (searchEntity instanceof LivingEntity entity)
+            if (tickCount % 5 != 0) return;
+
+            for (Entity searchEntity : this.level().getEntities(this, this.getBoundingBox())) {
+                if (!(searchEntity instanceof PixieEntity) && searchEntity instanceof LivingEntity entity && entity.getUUID() != getPlayerUUID()) {
                     entity.addEffect(new MobEffectInstance(EffectRegistry.PARALYSIS.get(), 100, 1));
+
+                    for (int i = 0; i < 200; i++) {
+                        double theta = level().random.nextDouble() * Math.PI * 2;
+                        double phi = level().random.nextDouble() * Math.PI;
+
+                        double particleX = this.getX() + Math.sin(phi) * Math.cos(theta);
+                        double particleY = this.getY() + Math.sin(phi) * Math.sin(theta);
+                        double particleZ = this.getZ() + 1 * Math.cos(phi);
+
+                        ((ServerLevel) level()).sendParticles(
+                                (ParticleUtils.constructSimpleSpark(Color.green, 0.5F, 1, 0.9f)),
+                                particleX,
+                                particleY,
+                                particleZ,
+                                1,
+                                0.0D, 0.0D, 0.0D,
+                                0.1D
+                        );
+                    }
+                }
+            }
         }
+
+    }
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        this.discard();
+
+        return super.hurt(pSource, pAmount);
     }
 
     @Override
@@ -99,7 +151,6 @@ public class PixieEntity extends Mob {
 
         if (this.player != null) {
             tag.putUUID("Player", this.player.getUUID());
-            System.out.println(tag.get("Player"));
         }
     }
 

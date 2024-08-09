@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.mixin.item;
 
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
+import it.hurts.sskirillss.relics.init.ItemRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
@@ -12,25 +13,33 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilityData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfLokiItem;
 
@@ -86,13 +95,15 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
         if (ability.equals("guardian")) {
             Level level = player.getCommandSenderWorld();
 
-            if(level.isClientSide)
+            if (level.isClientSide)
                 return;
 
-            setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
+            //    setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
 
             PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
+
             pixieEntity.setPlayer(player);
+            pixieEntity.setPlayerUUID(player.getUUID());
             pixieEntity.setPos(player.getX(), player.getY(), player.getZ());
 
             level.addFreshEntity(pixieEntity);
@@ -101,6 +112,20 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
+
+    }
+
+    @Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide())
+            return;
+
+        if (!(EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getItem() instanceof RingOfLokiItem)) {
+            for (Entity entity : player.level().getEntities(player, new AABB(player.blockPosition()).inflate(10))) {
+                if (entity instanceof PixieEntity pixieEntity && pixieEntity.getPlayerUUID().equals(player.getUUID()))
+                    pixieEntity.discard();
+            }
+        }
 
     }
 
