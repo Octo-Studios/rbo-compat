@@ -22,6 +22,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ItemStack;
@@ -43,8 +47,13 @@ import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfLokiItem;
 
+import java.util.Comparator;
+import java.util.Objects;
+
 @Mixin(RingOfLokiItem.class)
 public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem {
+    private static final String ORIGINAL_SPEED_KEY = "OriginalSpeed";
+
     public RingOfLokiItemMixin(Properties props) {
         super(props);
     }
@@ -75,9 +84,9 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
                                 .build())
                         .ability(AbilityData.builder("immunity")
                                 .stat(StatData.builder("radius")
-                                        .initialValue(1D, 10D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
+                                        .initialValue(1, 10)
+                                        .upgradeModifier(UpgradeOperation.ADD, 1)
+                                        .formatValue(Double::doubleValue)
                                         .build())
                                 .stat(StatData.builder("efficiency")
                                         .initialValue(1D, 10D)
@@ -98,7 +107,7 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
             if (level.isClientSide)
                 return;
 
-            //    setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
+            //setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
 
             PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
 
@@ -112,7 +121,30 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player)) return;
 
+        Level world = player.level();
+        for (Mob entity : world.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(this.getAbilityValue(stack, "immunity", "radius") + 3))) {
+            if (entity instanceof PixieEntity) return;
+
+            AttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+
+            if (!entity.getPersistentData().contains(ORIGINAL_SPEED_KEY)) {
+                double originalSpeed = speedAttribute.getBaseValue();
+                entity.getPersistentData().putDouble(ORIGINAL_SPEED_KEY, originalSpeed);
+            }
+
+            double originalSpeed = entity.getPersistentData().getDouble(ORIGINAL_SPEED_KEY);
+
+            if (player.distanceTo(entity) <= this.getAbilityValue(stack, "immunity", "radius")) {
+                double distance = player.distanceTo(entity);
+                double slowFactor = Math.max(0.1, 1 - (distance * 0.1));
+
+                speedAttribute.setBaseValue(originalSpeed * slowFactor);
+            } else {
+                speedAttribute.setBaseValue(originalSpeed);
+            }
+        }
     }
 
     @Override

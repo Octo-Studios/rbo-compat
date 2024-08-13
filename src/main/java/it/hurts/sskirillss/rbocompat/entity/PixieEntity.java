@@ -24,6 +24,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class PixieEntity extends Mob {
@@ -51,11 +52,20 @@ public class PixieEntity extends Mob {
         if (player == null && playerUUID != null)
             player = this.level().getPlayerByUUID(playerUUID);
 
-        if (player == null) return;
+        if (player == null || playerUUID == null) return;
+
+        ((ServerLevel) level()).sendParticles(
+                (ParticleUtils.constructSimpleSpark(new Color(random.nextInt(50), 200 + random.nextInt(55), random.nextInt(50)),
+
+                        0.3F, 25, 0.9f)),
+                getX(), getY(), getZ(),
+                1,
+                0.0D, 0.0D, 0.0D,
+                0.01D
+        );
 
         moveAroundThePlayerInACircle();
         collide();
-
     }
 
     private void moveAroundThePlayerInACircle() {
@@ -108,38 +118,28 @@ public class PixieEntity extends Mob {
 
             }
         } else {
-            if (tickCount % 5 != 0) return;
-
             for (Entity searchEntity : this.level().getEntities(this, this.getBoundingBox())) {
                 if (!(searchEntity instanceof PixieEntity) && searchEntity instanceof LivingEntity entity && entity.getUUID() != getPlayerUUID()) {
                     entity.addEffect(new MobEffectInstance(EffectRegistry.PARALYSIS.get(), 100, 1));
 
-                    for (int i = 0; i < 200; i++) {
-                        double theta = level().random.nextDouble() * Math.PI * 2;
-                        double phi = level().random.nextDouble() * Math.PI;
-
-                        double particleX = this.getX() + Math.sin(phi) * Math.cos(theta);
-                        double particleY = this.getY() + Math.sin(phi) * Math.sin(theta);
-                        double particleZ = this.getZ() + 1 * Math.cos(phi);
-
-                        ((ServerLevel) level()).sendParticles(
-                                (ParticleUtils.constructSimpleSpark(Color.green, 0.5F, 1, 0.9f)),
-                                particleX,
-                                particleY,
-                                particleZ,
-                                1,
-                                0.0D, 0.0D, 0.0D,
-                                0.1D
-                        );
-                    }
+                    ((ServerLevel) level()).sendParticles((ParticleUtils.constructSimpleSpark(Color.green, 0.3F, 25, 0.9f)),
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            50,
+                            0, 0, 0,
+                            0.025D);
                 }
             }
         }
-
     }
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
+        for (Entity entity : this.level().getEntities(this, this.getBoundingBox().inflate(10))) {
+            if (entity instanceof LivingEntity livingEntity)
+                livingEntity.addEffect(new MobEffectInstance(EffectRegistry.PARALYSIS.get(), 40, 1));
+        }
         this.discard();
 
         return super.hurt(pSource, pAmount);
@@ -148,6 +148,9 @@ public class PixieEntity extends Mob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.putDouble("PosX", this.getX());
+        tag.putDouble("PosY", this.getY());
+        tag.putDouble("PosZ", this.getZ());
 
         if (this.player != null) {
             tag.putUUID("Player", this.player.getUUID());
@@ -157,6 +160,9 @@ public class PixieEntity extends Mob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        if (tag.contains("PosX") && tag.contains("PosY") && tag.contains("PosZ")) {
+            this.setPos(tag.getDouble("PosX"), tag.getDouble("PosY"), tag.getDouble("PosZ"));
+        }
 
         if (tag.hasUUID("Player")) {
             this.playerUUID = tag.getUUID("Player");
