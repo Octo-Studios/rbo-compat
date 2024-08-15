@@ -24,7 +24,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class PixieEntity extends Mob {
@@ -35,6 +34,10 @@ public class PixieEntity extends Mob {
     @Getter
     @Setter
     private UUID playerUUID;
+
+    @Getter
+    @Setter
+    private int lifeTimeEntity;
 
     private double angle;
 
@@ -48,28 +51,31 @@ public class PixieEntity extends Mob {
     @Override
     public void tick() {
         super.tick();
+        this.setLifeTimeEntity(this.getLifeTimeEntity() - 1);
+
+        this.level().addParticle(
+                (ParticleUtils.constructSimpleSpark(new Color(random.nextInt(50), 200 + random.nextInt(55), random.nextInt(50)),
+                        0.3F, 25, 0.9f)),
+                getX(), getY(), getZ(),
+                0, 0, 0);
+
+        if (this.level().isClientSide)
+            return;
 
         if (player == null && playerUUID != null)
             player = this.level().getPlayerByUUID(playerUUID);
 
         if (player == null || playerUUID == null) return;
 
-        ((ServerLevel) level()).sendParticles(
-                (ParticleUtils.constructSimpleSpark(new Color(random.nextInt(50), 200 + random.nextInt(55), random.nextInt(50)),
-
-                        0.3F, 25, 0.9f)),
-                getX(), getY(), getZ(),
-                1,
-                0.0D, 0.0D, 0.0D,
-                0.01D
-        );
+        if (this.getLifeTimeEntity() == 0)
+            this.discard();
 
         moveAroundThePlayerInACircle();
         collide();
     }
 
     private void moveAroundThePlayerInACircle() {
-        double orbitRadius = 3 + Math.sin(tickCount * 0.075) * 0.5;
+        double orbitRadius = 3 + Math.sin(this.getLifeTimeEntity() * 0.075) * 0.5;
 
         angle += 0.07; // speed
 
@@ -148,9 +154,8 @@ public class PixieEntity extends Mob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putDouble("PosX", this.getX());
-        tag.putDouble("PosY", this.getY());
-        tag.putDouble("PosZ", this.getZ());
+
+        tag.putDouble("LifeTime", this.getLifeTimeEntity());
 
         if (this.player != null) {
             tag.putUUID("Player", this.player.getUUID());
@@ -160,13 +165,12 @@ public class PixieEntity extends Mob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("PosX") && tag.contains("PosY") && tag.contains("PosZ")) {
-            this.setPos(tag.getDouble("PosX"), tag.getDouble("PosY"), tag.getDouble("PosZ"));
-        }
 
         if (tag.hasUUID("Player")) {
             this.playerUUID = tag.getUUID("Player");
         }
+
+        this.setLifeTimeEntity(tag.getInt("LifeTime"));
     }
 
     @Override
