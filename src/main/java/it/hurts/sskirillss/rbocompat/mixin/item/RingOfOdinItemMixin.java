@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.mixin.item;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
@@ -12,23 +13,35 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilityData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
+import vazkii.botania.common.item.relic.RingOfLokiItem;
 import vazkii.botania.common.item.relic.RingOfOdinItem;
 
+import java.util.UUID;
+
 @Mixin(RingOfOdinItem.class)
-public class RingOfOdinItemMixin extends RelicBaubleItem implements IRelicItem {
+public class RingOfOdinItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem {
     public RingOfOdinItemMixin(Properties props) {
         super(props);
     }
@@ -38,8 +51,8 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements IRelicItem {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("heart")
-                                .stat(StatData.builder("capacity")
-                                        .initialValue(2D, 5D)
+                                .stat(StatData.builder("amount")
+                                        .initialValue(1D, 10D)
                                         .upgradeModifier(UpgradeOperation.ADD, 1D)
                                         .formatValue(value -> (int) MathUtils.round(value, 0))
                                         .build())
@@ -49,15 +62,10 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements IRelicItem {
                                         .type(CastType.INSTANTANEOUS)
                                         .build())
                                 .icon((player, stack, ability) -> ability + (NBTUtils.getBoolean(stack, "toggled", true) ? "_absorption" : "_reflection"))
-                                .stat(StatData.builder("radius")
-                                        .initialValue(2D, 6D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.25D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
-                                        .build())
                                 .stat(StatData.builder("amount")
-                                        .initialValue(0.1D, 0.25D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 3) * 100))
+                                        .initialValue(0.1D, 0.7D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.07D)
+                                        .formatValue(value -> (int) MathUtils.round(value, 0))
                                         .build())
                                 .build())
                         .build())
@@ -72,15 +80,33 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements IRelicItem {
     }
 
     @Override
-    public void onValidPlayerWornTick(Player player) {
+    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player)) return;
 
+        Multimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
+        attributes.put(Attributes.MAX_HEALTH, new AttributeModifier(getBaubleUUID(stack), "Odin Ring", this.getAbilityValue(stack, "heart", "amount"), AttributeModifier.Operation.ADDITION));
+
+        player.getAttributes().addTransientAttributeModifiers(attributes);
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getEquippedAttributeModifiers(ItemStack stack) {
-        Multimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
-        attributes.put(Attributes.MAX_HEALTH, new AttributeModifier(getBaubleUUID(stack), "Odin Ring", 10.0, AttributeModifier.Operation.ADDITION));
-        return attributes;
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide()
+                || EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing).getItem() instanceof RingOfOdinItem)
+            return;
+
+        player.getAttribute(Attributes.MAX_HEALTH).removeModifier(getBaubleUUID(stack));
+        player.setHealth(player.getMaxHealth());
+    }
+
+    @Override
+    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
+        return true;
+    }
+
+    @Inject(method = "getEquippedAttributeModifiers", at = @At("HEAD"), cancellable = true, remap = false)
+    private void getEquippedAttributeModifiers(ItemStack stack, CallbackInfoReturnable<Multimap<Attribute, AttributeModifier>> cir) {
+        cir.setReturnValue(HashMultimap.create());
     }
 
     @Inject(method = "onPlayerAttacked", at = @At("HEAD"), cancellable = true, remap = false)

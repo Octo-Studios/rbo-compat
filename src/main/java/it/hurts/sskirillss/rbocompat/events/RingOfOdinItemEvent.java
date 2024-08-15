@@ -16,26 +16,23 @@ import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
 public class RingOfOdinItemEvent {
+    public static int manaCost = 10000;
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
-        int mana = 100000;
-
-        if (!(event.getEntity() instanceof Player player) || !ManaUtils.hasEnoughMana(player, mana))
+        if (!(event.getEntity() instanceof Player player) || !ManaUtils.hasEnoughMana(player, manaCost))
             return;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing);
 
-        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.odinRing || ManaUtils.getTotalMana(player) <= 0)
+        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.odinRing || ManaUtils.getTotalMana(player) <= 0)
             return;
 
         if (NBTUtils.getBoolean(stack, "toggled", true)) {
-            ManaUtils.consumeMana(player, mana);
+            ManaUtils.consumeMana(player, manaCost);
 
-            event.setAmount(0);
-        }
-
-        if (!(NBTUtils.getBoolean(stack, "toggled", true))) {
+            event.setAmount((float) (event.getAmount() * relic.getAbilityValue(stack, "retribution", "amount")));
+        } else {
             DamageSource source = event.getSource();
             Entity attacker = source.getEntity();
             LivingEntity target = event.getEntity();
@@ -45,7 +42,7 @@ public class RingOfOdinItemEvent {
 
             float damage = event.getAmount();
 
-            ManaUtils.consumeMana(player, mana);
+            ManaUtils.consumeMana(player, manaCost);
 
             attacker.hurt(source, damage * 0.5F);
         }

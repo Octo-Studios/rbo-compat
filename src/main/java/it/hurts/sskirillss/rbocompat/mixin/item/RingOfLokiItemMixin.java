@@ -26,6 +26,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ItemStack;
@@ -48,6 +49,7 @@ import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfLokiItem;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 @Mixin(RingOfLokiItem.class)
@@ -84,13 +86,13 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
                                 .build())
                         .ability(AbilityData.builder("immunity")
                                 .stat(StatData.builder("radius")
-                                        .initialValue(1, 10)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1)
+                                        .initialValue(1, 5)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(Double::doubleValue)
                                         .build())
                                 .stat(StatData.builder("efficiency")
-                                        .initialValue(1D, 10D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
+                                        .initialValue(1D, 5)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
                                         .formatValue(value -> (int) (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
@@ -124,23 +126,19 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
         if (!(slotContext.entity() instanceof Player player)) return;
 
         Level world = player.level();
-        for (Mob entity : world.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(this.getAbilityValue(stack, "immunity", "radius") + 3))) {
+
+        for (Mob entity : gatherMobs(world, player, stack)) {
             if (entity instanceof PixieEntity) return;
 
             AttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
 
-            if (!entity.getPersistentData().contains(ORIGINAL_SPEED_KEY)) {
-                double originalSpeed = speedAttribute.getBaseValue();
-                entity.getPersistentData().putDouble(ORIGINAL_SPEED_KEY, originalSpeed);
-            }
+            if (!entity.getPersistentData().contains(ORIGINAL_SPEED_KEY))
+                entity.getPersistentData().putDouble(ORIGINAL_SPEED_KEY, speedAttribute.getBaseValue());
 
             double originalSpeed = entity.getPersistentData().getDouble(ORIGINAL_SPEED_KEY);
 
             if (player.distanceTo(entity) <= this.getAbilityValue(stack, "immunity", "radius")) {
-                double distance = player.distanceTo(entity);
-                double slowFactor = Math.max(0.1, 1 - (distance * 0.1));
-
-                speedAttribute.setBaseValue(originalSpeed * slowFactor);
+                speedAttribute.setBaseValue(originalSpeed * Math.max(0.2, 1 - (player.distanceTo(entity) * this.getAbilityValue(stack, "immunity", "efficiency"))));
             } else {
                 speedAttribute.setBaseValue(originalSpeed);
             }
@@ -149,16 +147,25 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide())
+        if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide()
+                || EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getItem() instanceof RingOfLokiItem)
             return;
 
-        if (!(EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getItem() instanceof RingOfLokiItem)) {
-            for (Entity entity : player.level().getEntities(player, new AABB(player.blockPosition()).inflate(10))) {
-                if (entity instanceof PixieEntity pixieEntity && pixieEntity.getPlayerUUID().equals(player.getUUID()))
-                    pixieEntity.discard();
-            }
+
+        for (Mob entity : gatherMobs(player.level(), player, stack)) {
+            if (entity.getPersistentData().contains(ORIGINAL_SPEED_KEY))
+                entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(entity.getPersistentData().getFloat(ORIGINAL_SPEED_KEY));
         }
 
+        for (Entity entity : player.level().getEntities(player, new AABB(player.blockPosition()).inflate(10))) {
+            if (entity instanceof PixieEntity pixieEntity && pixieEntity.getPlayerUUID().equals(player.getUUID()))
+                pixieEntity.discard();
+        }
+
+    }
+
+    private List<Mob> gatherMobs(Level level, Player player, ItemStack stack) {
+        return level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(this.getAbilityValue(stack, "immunity", "radius") + 3));
     }
 
     @Override
