@@ -1,0 +1,11 @@
+{
+  "tooltip.relics.odin_ring.description": "Один из трёх мифических колец асов, кольцо Одина наделяет своего владельца жизненной силой и стойкостью самого Отца Богов. Оно дарует носителю десять дополнительных сердец здоровья и бесконечную защиту от всевозможных видов урона.",
+  "tooltip.relics.odin_ring.ability.heart": "Сильное сердце",
+  "tooltip.relics.odin_ring.ability.heart.description": "Увеличивает запас максимального здоровья носителя.",
+  "tooltip.relics.odin_ring.ability.heart.stat.amount.title": "Количество:",
+  "tooltip.relics.odin_ring.ability.heart.stat.amount.value": "%1$s единиц.",
+  "tooltip.relics.odin_ring.ability.retribution": "Эхо возмездия",
+  "tooltip.relics.odin_ring.ability.retribution.description": "Переключаемая способность с двумя режимами: поглощение и отражение. В режиме поглощения способность полностью подавляет часть входящего урона, а в режиме отражения - возвращает часть урона атакующему, не отменяя его получения. Поглощает 1000 единиц маны из инвентаря за каждый процент измененного урона.",
+  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.title": "Коэффициент получаемого урона:",
+  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.value": "%1$s%%."
+}

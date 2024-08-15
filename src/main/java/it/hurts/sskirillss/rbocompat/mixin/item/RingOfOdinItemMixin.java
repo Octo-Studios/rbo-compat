@@ -52,8 +52,8 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements ICurioItem, 
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("heart")
                                 .stat(StatData.builder("amount")
-                                        .initialValue(1D, 10D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
+                                        .initialValue(5D, 10D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.3D)
                                         .formatValue(value -> (int) MathUtils.round(value, 0))
                                         .build())
                                 .build())
@@ -62,10 +62,10 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements ICurioItem, 
                                         .type(CastType.INSTANTANEOUS)
                                         .build())
                                 .icon((player, stack, ability) -> ability + (NBTUtils.getBoolean(stack, "toggled", true) ? "_absorption" : "_reflection"))
-                                .stat(StatData.builder("amount")
-                                        .initialValue(0.1D, 0.7D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.07D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                .stat(StatData.builder("multiplier")
+                                        .initialValue(0.05D, 0.1D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.075D)
+                                        .formatValue(value -> (int) MathUtils.round(value * 100, 1))
                                         .build())
                                 .build())
                         .build())
@@ -92,7 +92,7 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements ICurioItem, 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide()
-                || EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing).getItem() instanceof RingOfOdinItem)
+                || stack.getItem() == newStack.getItem())
             return;
 
         player.getAttribute(Attributes.MAX_HEALTH).removeModifier(getBaubleUUID(stack));
@@ -113,5 +113,4 @@ public class RingOfOdinItemMixin extends RelicBaubleItem implements ICurioItem, 
     private static void onPlayerAttacked(Player player, DamageSource src, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(false);
     }
-
 }

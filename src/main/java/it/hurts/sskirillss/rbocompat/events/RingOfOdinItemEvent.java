@@ -16,36 +16,35 @@ import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
 public class RingOfOdinItemEvent {
-    public static int manaCost = 10000;
-
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof Player player) || !ManaUtils.hasEnoughMana(player, manaCost))
+        if (!(event.getEntity() instanceof Player player))
             return;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing);
 
-        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.odinRing || ManaUtils.getTotalMana(player) <= 0)
+        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.odinRing)
+            return;
+
+        double multiplier = relic.getAbilityValue(stack, "retribution", "multiplier");
+        int manaCost = (int) Math.round(multiplier * 1000);
+
+        if (!ManaUtils.hasEnoughMana(player, manaCost))
             return;
 
         if (NBTUtils.getBoolean(stack, "toggled", true)) {
-            ManaUtils.consumeMana(player, manaCost);
-
-            event.setAmount((float) (event.getAmount() * relic.getAbilityValue(stack, "retribution", "amount")));
+            event.setAmount((float) (event.getAmount() * relic.getAbilityValue(stack, "retribution", "multiplier")));
         } else {
             DamageSource source = event.getSource();
-            Entity attacker = source.getEntity();
-            LivingEntity target = event.getEntity();
 
-            if (!(attacker instanceof LivingEntity || target == null))
+            if (!(source.getEntity() instanceof LivingEntity attacker))
                 return;
 
             float damage = event.getAmount();
 
-            ManaUtils.consumeMana(player, manaCost);
-
-            attacker.hurt(source, damage * 0.5F);
+            EntityUtils.hurt(attacker, source, (float) (damage * multiplier));
         }
 
+        ManaUtils.consumeMana(player, manaCost);
     }
 }

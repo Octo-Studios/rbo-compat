@@ -1,0 +1,11 @@
+{
+  "tooltip.relics.odin_ring.description": "One of the three mythical rings of the Aesir, the Ring of Odin grants its bearer the vitality and resistance of the Father God. It provides its wearer with ten extra hearts of health and indefinite protection from various kinds of damage.",
+  "tooltip.relics.odin_ring.ability.heart": "Strong Heart",
+  "tooltip.relics.odin_ring.ability.heart.description": "Increases the bearer’s maximum health.",
+  "tooltip.relics.odin_ring.ability.heart.stat.amount.title": "Amount:",
+  "tooltip.relics.odin_ring.ability.heart.stat.amount.value": "%1$s units.",
+  "tooltip.relics.odin_ring.ability.retribution": "Echo of Retribution",
+  "tooltip.relics.odin_ring.ability.retribution.description": "A toggleable ability with two modes: Absorption and Reflection. In Absorption mode, the ability completely suppresses a portion of incoming damage, while in Reflection mode, it returns a portion of the damage to the attacker without preventing its reception. Consumes 1000 mana from the inventory for each percent of damage altered.",
+  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.title": "Damage Received Multiplier:",
+  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.value": "%1$s%%."
+}
