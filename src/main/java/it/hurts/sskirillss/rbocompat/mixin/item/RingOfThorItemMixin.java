@@ -1,5 +1,6 @@
 package it.hurts.sskirillss.rbocompat.mixin.item;
 
+import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
@@ -12,6 +13,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -42,7 +44,19 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("entropy")
-                                .icon((player, stack, ability) -> ability + (NBTUtils.getBoolean(stack, "toggled", true) ? "_on" : "_off"))
+                                .active(CastData.builder()
+                                        .type(CastType.INSTANTANEOUS)
+                                        .build())
+                                .stat(StatData.builder("capacity")
+                                        .initialValue(2D, 5D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
+                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                        .build())
+                                .stat(StatData.builder("capacity")
+                                        .initialValue(2D, 5D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
+                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                        .build())
                                 .build())
                         .ability(AbilityData.builder("revelation")
                                 .active(CastData.builder()
@@ -68,6 +82,10 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
 
     @Override
     public void castActiveAbility(ItemStack stack, Player player, String ability, CastType type, CastStage stage) {
+        if (ability.equals("entropy") && player.level().isClientSide) {
+            Minecraft.getInstance().setScreen(new MiningAreaScreen());
+        }
+
         if (ability.equals("revelation")) {
             BlockPos pos = player.blockPosition();
             Level world = player.level();
