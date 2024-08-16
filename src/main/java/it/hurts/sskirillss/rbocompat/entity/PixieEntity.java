@@ -1,6 +1,10 @@
 package it.hurts.sskirillss.rbocompat.entity;
 
 import it.hurts.sskirillss.relics.init.EffectRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.items.relics.necklace.HolyLocketItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +19,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,6 +28,9 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.relic.RingOfLokiItem;
 
 import java.awt.*;
 import java.util.UUID;
@@ -100,15 +109,20 @@ public class PixieEntity extends Mob {
         BlockPos blockPos = this.blockPosition();
         BlockState blockState = level().getBlockState(blockPos);
         Block block = level().getBlockState(this.blockPosition()).getBlock();
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
+
+        if (!(itemStack.getItem() instanceof IRelicItem relic))
+            return;
 
         if (block instanceof CropBlock cropBlock) {
             if (tickCount % 2 != 0) return;
-
+            System.out.println(relic.getAbilityValue(itemStack, "guardian", "efficiency"));
             int currentAge = cropBlock.getAge(blockState);
             int maxAge = cropBlock.getMaxAge();
 
             if (currentAge < maxAge) {
-                level().setBlock(blockPos, cropBlock.getStateForAge(currentAge + 1), 2);
+                level().setBlock(blockPos, cropBlock.getStateForAge((int) Math.min(maxAge, currentAge
+                        + (maxAge / relic.getAbilityValue(itemStack, "guardian", "efficiency")))), 2);
 
                 for (int i = 0; i < 10; i++) {
                     ((ServerLevel) level()).sendParticles(
@@ -126,7 +140,8 @@ public class PixieEntity extends Mob {
         } else {
             for (Entity searchEntity : this.level().getEntities(this, this.getBoundingBox())) {
                 if (!(searchEntity instanceof PixieEntity) && searchEntity instanceof LivingEntity entity && entity.getUUID() != getPlayerUUID()) {
-                    entity.addEffect(new MobEffectInstance(EffectRegistry.PARALYSIS.get(), 100, 1));
+                    entity.addEffect(new MobEffectInstance(EffectRegistry.PARALYSIS.get(), (int) (20
+                            * relic.getAbilityValue(itemStack, "guardian", "duration")), 1));
 
                     ((ServerLevel) level()).sendParticles((ParticleUtils.constructSimpleSpark(Color.green, 0.3F, 25, 0.9f)),
                             this.getX(),

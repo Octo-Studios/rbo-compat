@@ -69,14 +69,9 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
                                         .type(CastType.INSTANTANEOUS)
                                         .build())
                                 .stat(StatData.builder("efficiency")
-                                        .initialValue(1D, 10D)
+                                        .initialValue(0.1D, 1D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
-                                        .build())
-                                .stat(StatData.builder("cooldown")
-                                        .initialValue(1D, 10D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
+                                        .formatValue(value -> (int) MathUtils.round(value * 10, 1))
                                         .build())
                                 .stat(StatData.builder("duration")
                                         .initialValue(1D, 10D)
@@ -87,7 +82,7 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
                         .ability(AbilityData.builder("immunity")
                                 .stat(StatData.builder("radius")
                                         .initialValue(1, 5)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
                                         .formatValue(Double::doubleValue)
                                         .build())
                                 .stat(StatData.builder("efficiency")
@@ -106,7 +101,7 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
         if (ability.equals("guardian")) {
             Level level = player.getCommandSenderWorld();
 
-        //    setAbilityCooldown(stack, "guardian", (int) Math.round(getAbilityValue(stack, "guardian", "duration") * 20));
+            this.setAbilityCooldown(stack, "guardian", 400 - (20 * this.getLevel(stack)));
 
             PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
 
@@ -146,9 +141,8 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide()
-                || EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getItem() instanceof RingOfLokiItem)
+                || stack.getItem() == newStack.getItem())
             return;
-
 
         for (Mob entity : gatherMobs(player.level(), player, stack)) {
             if (entity.getPersistentData().contains(ORIGINAL_SPEED_KEY))
