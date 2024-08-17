@@ -1,17 +1,34 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.screen.particle.FloralParticleData;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.*;
+import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
+import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+
+import java.awt.*;
 
 public class MiningAreaScreen extends Screen {
     public MiningAreaScreen() {
         super(Component.literal("MiningAreaScreen"));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        int x = getTextureCenter()[0];
+        int y = getTextureCenter()[1];
+
+        RandomSource random = Minecraft.getInstance().player.getRandom();
+        ParticleStorage.addParticle(this, new FloralParticleData(new Color(82, 42, 114),
+                x+ 19, y + 30, 0.25F + (random.nextFloat() * 0.25F), 10 + random.nextInt(10)));
     }
 
     @Override
