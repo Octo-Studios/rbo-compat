@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.mixin;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

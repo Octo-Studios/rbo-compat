@@ -12,7 +12,7 @@
     "item.RingOfLokiItemMixin",
     "item.RingOfOdinItemMixin",
     "item.RingOfThorItemMixin",
-    "item.TerraShattererItemMixin"
+    "TerraShattererItemMixin"
   ],
   "client": [
   ],
