@@ -1,5 +1,9 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.client.screen.particle.FloralParticleData;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.*;
@@ -8,10 +12,21 @@ import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import vazkii.botania.common.item.BotaniaItems;
 
 import java.awt.*;
 
@@ -28,7 +43,7 @@ public class MiningAreaScreen extends Screen {
 
         RandomSource random = Minecraft.getInstance().player.getRandom();
         ParticleStorage.addParticle(this, new FloralParticleData(new Color(82, 42, 114),
-                x+ 19, y + 30, 0.25F + (random.nextFloat() * 0.25F), 10 + random.nextInt(10)));
+                x + 19, y + 30, 0.25F + (random.nextFloat() * 0.25F), 10 + random.nextInt(10)));
     }
 
     @Override
@@ -84,13 +99,35 @@ public class MiningAreaScreen extends Screen {
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
         TextureManager manager = Minecraft.getInstance().getTextureManager();
 
+        int centerX = getTextureCenter()[0];
+        int centerY = getTextureCenter()[1];
+
         int scale = 2;
 
         int textureWidth = 700;
         int textureHeight = 350;
 
         manager.bindForSetup(texture);
-        pGuiGraphics.blit(texture, getTextureCenter()[0], getTextureCenter()[1], textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+        pGuiGraphics.blit(texture, centerX, centerY, textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+
+        Minecraft mc = Minecraft.getInstance();
+        ItemRenderer itemRenderer = mc.getItemRenderer();
+
+        PoseStack poseStack = new PoseStack();
+
+        poseStack.pushPose();
+        poseStack.translate(centerX + 80, centerY + 85, 0);
+        poseStack.translate(0, Math.sin((mc.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+        poseStack.mulPose(Axis.YP.rotationDegrees(mc.level.getGameTime() % 360 + pPartialTick));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
+        poseStack.scale(74, 74, 74);
+
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+
+        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 240, 0, poseStack, bufferSource, mc.level, 0);
+
+        bufferSource.endBatch();
+        poseStack.popPose();
 
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
     }
