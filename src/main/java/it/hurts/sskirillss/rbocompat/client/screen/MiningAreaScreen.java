@@ -1,11 +1,9 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
-import it.hurts.sskirillss.rbocompat.client.screen.particle.FloralParticleData;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.*;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
@@ -13,24 +11,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import vazkii.botania.common.item.BotaniaItems;
 
 import java.awt.*;
 
 public class MiningAreaScreen extends Screen {
+    private final Minecraft MC = Minecraft.getInstance();
+
     public MiningAreaScreen() {
         super(Component.literal("MiningAreaScreen"));
     }
@@ -41,9 +35,23 @@ public class MiningAreaScreen extends Screen {
         int x = getTextureCenter()[0];
         int y = getTextureCenter()[1];
 
-        RandomSource random = Minecraft.getInstance().player.getRandom();
-        ParticleStorage.addParticle(this, new FloralParticleData(new Color(82, 42, 114),
-                x + 19, y + 30, 0.25F + (random.nextFloat() * 0.25F), 10 + random.nextInt(10)));
+        RandomSource random = MC.player.getRandom();
+        int xOff = random.nextInt(25);
+
+        ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x9B1D8F),
+                x + 8 + xOff, y + 25, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
+
+        ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x9B1D8F),
+                x + 20, y + 40, 1F + (random.nextFloat() * 0.25F),40 + random.nextInt(20)));
+
+        ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0xD5354A),
+                x + 18 + random.nextInt(15), y + 158, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
+
+        ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0xD5354A),
+                x + 37 + random.nextInt(15), y + 165, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
+
+        ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x264E4D),
+                x + 318 + xOff, y + 158, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
     }
 
     @Override
@@ -73,19 +81,20 @@ public class MiningAreaScreen extends Screen {
         this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height));
 
         int buttonCentralWidth = 66;
-        int buttonCentralHeight = 23;
+        int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
 
         int button2Width = 35;
         int button2Height = 34;
+
         int[] button2Pos = calculateButtonPosition(centerX, centerY, button2Width, button2Height, 212, 126);
 
         this.addRenderableWidget(new ConfirmSelectionModeWidget(button2Pos[0], button2Pos[1], button2Width, button2Height));
@@ -96,8 +105,13 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pGuiGraphics);
+
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
-        TextureManager manager = Minecraft.getInstance().getTextureManager();
+        TextureManager manager = MC.getTextureManager();
+        PoseStack poseStack = new PoseStack();
+
+        poseStack.pushPose();
 
         int centerX = getTextureCenter()[0];
         int centerY = getTextureCenter()[1];
@@ -110,26 +124,35 @@ public class MiningAreaScreen extends Screen {
         manager.bindForSetup(texture);
         pGuiGraphics.blit(texture, centerX, centerY, textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
 
-        Minecraft mc = Minecraft.getInstance();
-        ItemRenderer itemRenderer = mc.getItemRenderer();
+        ItemRenderer itemRenderer = MC.getItemRenderer();
 
-        PoseStack poseStack = new PoseStack();
+        poseStack.popPose();
 
         poseStack.pushPose();
-        poseStack.translate(centerX + 80, centerY + 85, 0);
-        poseStack.translate(0, Math.sin((mc.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
-        poseStack.mulPose(Axis.YP.rotationDegrees(mc.level.getGameTime() % 360 + pPartialTick));
+        poseStack.translate(centerX + 83, centerY + 85, 100);  // Здесь 100 - это значение Z-координаты
+        poseStack.translate(0, Math.sin((MC.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+        poseStack.mulPose(Axis.YP.rotationDegrees(MC.level.getGameTime() % 360 + pPartialTick));
         poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
         poseStack.scale(74, 74, 74);
 
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
 
-        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 240, 0, poseStack, bufferSource, mc.level, 0);
+        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, 0, poseStack, bufferSource, MC.level, 0);
 
-        bufferSource.endBatch();
         poseStack.popPose();
 
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (MC.options.keyInventory.isActiveAndMatches(InputConstants.getKey(pKeyCode, pScanCode))) {
+            this.onClose();
+
+            return true;
+        }
+
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
     @Override
@@ -142,8 +165,8 @@ public class MiningAreaScreen extends Screen {
         int textureWidth = 700;
         int textureHeight = 350;
 
-        int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-        int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+        int screenWidth = MC.getWindow().getGuiScaledWidth();
+        int screenHeight = MC.getWindow().getGuiScaledHeight();
 
         int x = (screenWidth - textureWidth / scale) / 2;
         int y = (screenHeight - textureHeight / scale) / 2 - 20;

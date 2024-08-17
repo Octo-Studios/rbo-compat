@@ -9,9 +9,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class CentralPanelWidget extends AbstractButton {
+    private final Minecraft MC = Minecraft.getInstance();
 
-    public CentralPanelWidget(int pX, int pY, int pWidth, int pHeight) {
-        super(pX, pY, pWidth, pHeight, Component.empty());
+    public CentralPanelWidget(int pX, int pY, int pWidth, int pHeight, Component component) {
+        super(pX, pY, pWidth, pHeight, component);
+
+        this.active = false;
     }
 
     @Override
@@ -20,6 +23,12 @@ public class CentralPanelWidget extends AbstractButton {
 
         Minecraft.getInstance().getTextureManager().bindForSetup(texture);
         pGuiGraphics.blit(texture, getX(), getY(), 0, 0, width, height, width, height);
+
+        int textX = this.getX() + (this.width - MC.font.width(this.getMessage())) / 2;
+        int textY = this.getY() + (this.height - MC.font.lineHeight) / 2;
+
+        pGuiGraphics.drawString(Minecraft.getInstance().font, this.getMessage(), textX, textY, 0xFFFFFF);
+
     }
 
     @Override

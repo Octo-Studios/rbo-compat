@@ -2,7 +2,8 @@ package it.hurts.sskirillss.rbocompat.mixin.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
+import it.hurts.sskirillss.rbocompat.entity.BaseBabylonianWeaponEntity;
+import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilitiesData;
@@ -15,29 +16,30 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.common.handler.BotaniaSounds;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.KeyOfTheKingsLawItem;
 import vazkii.botania.common.item.relic.RelicItem;
 
+import java.util.Random;
+
 @Mixin(KeyOfTheKingsLawItem.class)
 public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, IRelicItem {
+    private static boolean flag = true;
+
     public KeyOfTheKingsLawItemMixin(Properties props) {
         super(props);
     }
@@ -63,6 +65,39 @@ public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, 
                         .build())
                 .leveling(new LevelingData(100, 10, 100))
                 .build();
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (!(entity instanceof Player player) || player.level().isClientSide) return;
+
+        Item heldItemMainHand = player.getMainHandItem().getItem();
+        Item heldItemOffHand = player.getOffhandItem().getItem();
+
+        if ((heldItemMainHand.equals(BotaniaItems.kingKey) || heldItemOffHand.equals(BotaniaItems.kingKey)) && flag) {
+            BaseBabylonianWeaponEntity weapon = new BaseBabylonianWeaponEntity(EntityRegistry.BABYLON_WEAPON.get(), level);
+
+            weapon.setCustomValue(new Random().nextInt(12));
+            weapon.setPlayerUUID(player.getUUID());
+            weapon.setPos(player.position());
+
+            level.addFreshEntity(weapon);
+
+            weapon.playSound(BotaniaSounds.babylonSpawn, 1.0F, 1.0F + level.random.nextFloat() * 3.0F);
+
+            flag = false;
+
+            return;
+        }
+
+        if (!(heldItemMainHand.equals(BotaniaItems.kingKey)) && !(heldItemOffHand.equals(BotaniaItems.kingKey)) && !flag) {
+            level.getEntitiesOfClass(BaseBabylonianWeaponEntity.class, player.getBoundingBox().inflate(10)).stream()
+                    .filter(n -> n.getPlayerUUID() == player.getUUID())
+                    .forEach(BaseBabylonianWeaponEntity::discard);
+
+            flag = true;
+        }
     }
 
     @Override

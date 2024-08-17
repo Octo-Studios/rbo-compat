@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.init;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.entity.BaseBabylonianWeaponEntity;
 import it.hurts.sskirillss.rbocompat.entity.ObserverEntity;
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import net.minecraft.resources.ResourceLocation;
@@ -30,6 +31,11 @@ public class EntityRegistry {
                     .sized(1, 1)
                     .build(new ResourceLocation(RBOCompat.MODID, "observer").toString()));
 
+    public static final RegistryObject<EntityType<BaseBabylonianWeaponEntity>> BABYLON_WEAPON = ENTITIES.register("babylon_weapon", () ->
+            EntityType.Builder.of(BaseBabylonianWeaponEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .build(new ResourceLocation(RBOCompat.MODID, "babylon_weapon").toString()));
+
 
     public static void register() {
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -39,5 +45,6 @@ public class EntityRegistry {
     public static void setupClient(EntityAttributeCreationEvent event) {
         event.put(PIXIE.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1D).build());
         event.put(OBSERVER.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1D).build());
+        event.put(BABYLON_WEAPON.get(), Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1D).build());
     }
 }
