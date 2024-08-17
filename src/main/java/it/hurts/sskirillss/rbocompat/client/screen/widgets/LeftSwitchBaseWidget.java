@@ -8,9 +8,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class SwitchBaseWidget extends AbstractButton {
+public class LeftSwitchBaseWidget extends AbstractButton {
 
-    public SwitchBaseWidget(int x, int y, int width, int height) {
+    public LeftSwitchBaseWidget(int x, int y, int width, int height) {
         super(x, y, width, height, Component.empty());
     }
 
