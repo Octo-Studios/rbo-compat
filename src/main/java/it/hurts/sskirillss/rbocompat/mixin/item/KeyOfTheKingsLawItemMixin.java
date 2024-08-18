@@ -12,6 +12,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
 import it.hurts.sskirillss.relics.utils.MathUtils;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -49,9 +50,9 @@ public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, 
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("arsenal")
-                                .stat(StatData.builder("example")
-                                        .initialValue(1D, 10D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
+                                .stat(StatData.builder("amount")
+                                        .initialValue(1D, 3D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.01D)
                                         .formatValue(value -> (int) (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
@@ -76,26 +77,30 @@ public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, 
         Item heldItemOffHand = player.getOffhandItem().getItem();
 
         if ((heldItemMainHand.equals(BotaniaItems.kingKey) || heldItemOffHand.equals(BotaniaItems.kingKey)) && flag) {
-            BaseBabylonianWeaponEntity weapon = new BaseBabylonianWeaponEntity(EntityRegistry.BABYLON_WEAPON.get(), level);
+            for (int i = 0; i < (int) this.getAbilityValue(stack, "arsenal", "amount"); i++) {
+                BaseBabylonianWeaponEntity weapon = new BaseBabylonianWeaponEntity(EntityRegistry.BABYLON_WEAPON.get(), level);
 
-            weapon.setCustomValue(new Random().nextInt(12));
-            weapon.setPlayerUUID(player.getUUID());
-            weapon.setPos(player.position());
+                weapon.setPlayerUUID(player.getUUID());
 
-            level.addFreshEntity(weapon);
+                double offsetX = 0.5 * i;
+                double offsetZ = 0.5 * i;
+                weapon.setPos(player.position().add(offsetX, 0, offsetZ));
 
-            weapon.playSound(BotaniaSounds.babylonSpawn, 1.0F, 1.0F + level.random.nextFloat() * 3.0F);
+                level.addFreshEntity(weapon);
+            }
+
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), BotaniaSounds.babylonSpawn, SoundSource.PLAYERS, 1.0F, 1.0F + level.random.nextFloat() * 3.0F);
 
             flag = false;
-
             return;
         }
 
         if (!(heldItemMainHand.equals(BotaniaItems.kingKey)) && !(heldItemOffHand.equals(BotaniaItems.kingKey)) && !flag) {
-            level.getEntitiesOfClass(BaseBabylonianWeaponEntity.class, player.getBoundingBox().inflate(10)).stream()
-                    .filter(n -> n.getPlayerUUID() == player.getUUID())
-                    .forEach(BaseBabylonianWeaponEntity::discard);
-
+            for (BaseBabylonianWeaponEntity searchEntity : level.getEntitiesOfClass(BaseBabylonianWeaponEntity.class, player.getBoundingBox().inflate(10))) {
+                if (searchEntity.getPlayerUUID() == player.getUUID()) {
+                    searchEntity.discard();
+                }
+            }
             flag = true;
         }
     }

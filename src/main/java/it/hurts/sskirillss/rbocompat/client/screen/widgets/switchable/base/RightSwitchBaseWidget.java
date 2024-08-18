@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.client.screen.widgets;
+package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import net.minecraft.client.Minecraft;
@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class RightSwitchBaseWidget extends AbstractButton {
 
-    public RightSwitchBaseWidget(int x, int y, int width, int height) {
-        super(x, y, width, height, Component.empty());
+    public RightSwitchBaseWidget(int x, int y, int width, int height, Component component) {
+        super(x, y, width, height, component);
     }
 
     @Override
@@ -29,6 +29,14 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
-
+        if(this.getMessage().contains(Component.nullToEmpty("x"))){
+            System.out.println("key X");
+        }
+        if(this.getMessage().contains(Component.nullToEmpty("y"))){
+            System.out.println("key Y");
+        }
+       if(this.getMessage().contains(Component.nullToEmpty("z"))){
+            System.out.println("key ZZZZZZZ");
+        }
     }
 }

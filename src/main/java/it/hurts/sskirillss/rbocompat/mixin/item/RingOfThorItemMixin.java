@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import vazkii.botania.client.fx.WispParticleData;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfThorItem;
 
@@ -46,6 +47,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
                         .ability(AbilityData.builder("entropy")
                                 .active(CastData.builder()
                                         .type(CastType.INSTANTANEOUS)
+                                        .castPredicate("entropy", (player, stack) -> player.getMainHandItem().getItem().toString().contains("terra_pick"))
                                         .build())
                                 .stat(StatData.builder("capacity")
                                         .initialValue(2D, 5D)

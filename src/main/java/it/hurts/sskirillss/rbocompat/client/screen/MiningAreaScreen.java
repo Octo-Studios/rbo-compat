@@ -4,7 +4,12 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.*;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.CentralPanelBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import net.minecraft.client.Minecraft;
@@ -18,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.checkerframework.checker.units.qual.C;
 import vazkii.botania.common.item.BotaniaItems;
 
 import java.awt.*;
@@ -42,7 +48,7 @@ public class MiningAreaScreen extends Screen {
                 x + 8 + xOff, y + 25, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
 
         ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x9B1D8F),
-                x + 20, y + 40, 1F + (random.nextFloat() * 0.25F),40 + random.nextInt(20)));
+                x + 20, y + 40, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
 
         ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0xD5354A),
                 x + 18 + random.nextInt(15), y + 158, 1F + (random.nextFloat() * 0.25F), 40 + random.nextInt(20)));
@@ -63,34 +69,37 @@ public class MiningAreaScreen extends Screen {
         int button1Height = 21;
 
         int[] buttonPos1 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 46);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height));
+        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height, Component.literal("x")));
 
         int[] buttonPos2 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 70);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height));
+        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height, Component.literal("y")));
 
         int[] buttonPos3 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 93);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height));
+        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height, Component.literal("z")));
 
         int[] buttonPos1Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 46);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height));
+        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height, Component.literal("x")));
 
         int[] buttonPos2Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 70);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height));
+        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height, Component.literal("y")));
 
         int[] buttonPos3Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 93);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height));
+        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height, Component.literal("z")));
 
         int buttonCentralWidth = 66;
         int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetXPos")))));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetYPos")))));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight, Component.literal("")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetZPos")))));
 
         int button2Width = 35;
         int button2Height = 34;
@@ -129,6 +138,7 @@ public class MiningAreaScreen extends Screen {
         poseStack.popPose();
 
         poseStack.pushPose();
+
         poseStack.translate(centerX + 83, centerY + 85, 100);  // Здесь 100 - это значение Z-координаты
         poseStack.translate(0, Math.sin((MC.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
         poseStack.mulPose(Axis.YP.rotationDegrees(MC.level.getGameTime() % 360 + pPartialTick));
@@ -138,6 +148,15 @@ public class MiningAreaScreen extends Screen {
         MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
 
         itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, 0, poseStack, bufferSource, MC.level, 0);
+
+        poseStack.popPose();
+
+        poseStack.pushPose();
+
+        poseStack.scale(74, 74, 74);
+
+        pGuiGraphics.drawString(MC.font, "10", centerX + 297, centerY + 53, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, "10", centerX + 297, centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 

@@ -6,7 +6,7 @@ import vazkii.botania.api.mana.ManaItemHandler;
 
 import java.util.Optional;
 
-public class ManaUtils {
+public class ManaUtil {
 
     public static int getTotalMana(Player player) {
         if (player == null) return 0;
