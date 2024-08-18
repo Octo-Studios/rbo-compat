@@ -1,10 +1,8 @@
 package it.hurts.sskirillss.rbocompat.utils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.level.NoteBlockEvent;
 
 public class InventoryUtil {
 

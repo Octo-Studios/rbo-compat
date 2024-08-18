@@ -39,9 +39,9 @@ public class TerraShattererItemMixin {
         CompoundTag nbtData = itemStack.getOrCreateTag();
 
         if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos") && !itemStack.getTag().contains("GetZPos")) {
-            nbtData.putInt("GetXPos", 0);
-            nbtData.putInt("GetYPos", 0);
-            nbtData.putInt("GetZPos", 0);
+            nbtData.putInt("GetXPos", 1);
+            nbtData.putInt("GetYPos", 1);
+            nbtData.putInt("GetZPos", 1);
 
             itemStack.setTag(nbtData);
         }

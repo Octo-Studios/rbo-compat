@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -150,8 +151,8 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.scale(74, 74, 74);
 
-        pGuiGraphics.drawString(MC.font, "10", centerX + 297, centerY + 53, 0xFFFFFF);
-        pGuiGraphics.drawString(MC.font, "10", centerX + 297, centerY + 77, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 297, centerY + 53, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, "100", centerX + 297, centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 
@@ -172,6 +173,12 @@ public class MiningAreaScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    public static int volumeCalculation() {
+        CompoundTag tag = InventoryUtil.getItemStackTerraPix().getOrCreateTag();
+
+        return tag.getInt("GetXPos") * tag.getInt("GetYPos") * tag.getInt("GetZPos");
     }
 
     private int[] getTextureCenter() {
