@@ -6,9 +6,7 @@ import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.CentralPanelBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.*;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
@@ -90,16 +88,13 @@ public class MiningAreaScreen extends Screen {
         int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetXPos")))));
+        this.addRenderableWidget(new CentralPanelX(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetYPos")))));
+        this.addRenderableWidget(new CentralPanelY(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getOrCreateTag().get("GetZPos")))));
+        this.addRenderableWidget(new CentralPanelZ(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight));
 
         int button2Width = 35;
         int button2Height = 34;

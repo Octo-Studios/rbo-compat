@@ -1,6 +1,10 @@
 package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,6 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class LeftSwitchBaseWidget extends AbstractButton {
+
+    @Getter
+    @Setter
+    private static int val;
 
     public LeftSwitchBaseWidget(int x, int y, int width, int height, Component component) {
         super(x, y, width, height, component);
@@ -29,15 +37,17 @@ public class LeftSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
-        if(this.getMessage().contains(Component.nullToEmpty("x"))){
-            System.out.println("key X");
+        setVal(++val);
+        if (this.getMessage().contains(Component.nullToEmpty("x"))) {
+            NetworkHandler.sendToServer(new UpdateItemStackPacket(-1, 0, 0));
         }
-        if(this.getMessage().contains(Component.nullToEmpty("y"))){
-            System.out.println("key Y");
+        if (this.getMessage().contains(Component.nullToEmpty("y"))) {
+            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
         }
-        if(this.getMessage().contains(Component.nullToEmpty("z"))){
-            System.out.println("key ZZZZZZZ");
+        if (this.getMessage().contains(Component.nullToEmpty("z"))) {
+            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
         }
 
     }
 }
+
