@@ -1,11 +1,9 @@
 package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
 
-import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 public class CentralPanelX extends CentralPanelBaseWidget {
     public CentralPanelX(int pX, int pY, int pWidth, int pHeight) {

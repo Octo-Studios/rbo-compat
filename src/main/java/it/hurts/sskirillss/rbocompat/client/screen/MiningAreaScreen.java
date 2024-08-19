@@ -149,10 +149,8 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.scale(74, 74, 74);
-
-        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 297, centerY + 53, 0xFFFFFF);
-        pGuiGraphics.drawString(MC.font, "100", centerX + 297, centerY + 77, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, "100", centerX + 303 - (MC.font.width(String.valueOf("100")) / 2), centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 

@@ -14,10 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class LeftSwitchBaseWidget extends AbstractButton {
 
-    @Getter
-    @Setter
-    private static int val;
-
     public LeftSwitchBaseWidget(int x, int y, int width, int height, Component component) {
         super(x, y, width, height, component);
     }
@@ -37,7 +33,6 @@ public class LeftSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
-        setVal(++val);
         if (this.getMessage().contains(Component.nullToEmpty("x"))) {
             NetworkHandler.sendToServer(new UpdateItemStackPacket(-1, 0, 0));
         }

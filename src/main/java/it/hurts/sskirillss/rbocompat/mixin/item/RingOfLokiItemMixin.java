@@ -165,11 +165,6 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
         return true;
     }
 
-    @Inject(method = "onUnequipped", at = @At("HEAD"), cancellable = true, remap = false)
-    private void onUnequipped(ItemStack stack, LivingEntity living, CallbackInfo ci) {
-        ci.cancel();
-    }
-
     @Inject(method = "onPlayerInteract", at = @At("HEAD"), cancellable = true, remap = false)
     private static void onPlayerAttacked(Player player, Level world, InteractionHand hand, BlockHitResult lookPos, CallbackInfoReturnable<InteractionResult> cir) {
         cir.cancel();

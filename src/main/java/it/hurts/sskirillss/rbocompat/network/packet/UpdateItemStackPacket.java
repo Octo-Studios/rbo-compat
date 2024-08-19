@@ -44,9 +44,9 @@ public class UpdateItemStackPacket {
                 ItemStack stack = player.getMainHandItem();
                 CompoundTag tag = stack.getOrCreateTag();
 
-                tag.putInt("GetXPos", Math.max(0, tag.getInt("GetXPos") + msg.xPos));
-                tag.putInt("GetYPos", Math.max(0, tag.getInt("GetYPos") + msg.yPos));
-                tag.putInt("GetZPos", Math.max(0, tag.getInt("GetZPos") + msg.zPos));
+                tag.putInt("GetXPos", Math.max(1, tag.getInt("GetXPos") + msg.xPos));
+                tag.putInt("GetYPos", Math.max(1, tag.getInt("GetYPos") + msg.yPos));
+                tag.putInt("GetZPos", Math.max(1, tag.getInt("GetZPos") + msg.zPos));
 
                 stack.setTag(tag);
             }

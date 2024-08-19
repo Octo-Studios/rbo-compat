@@ -2,22 +2,13 @@ package it.hurts.sskirillss.rbocompat.events;
 
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.MinecartItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Mod.EventBusSubscriber
 public class RingOfThorItemEvent {

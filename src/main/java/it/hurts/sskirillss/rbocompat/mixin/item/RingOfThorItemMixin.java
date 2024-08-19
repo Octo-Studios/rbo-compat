@@ -1,5 +1,6 @@
 package it.hurts.sskirillss.rbocompat.mixin.item;
 
+import com.google.common.collect.ImmutableList;
 import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
@@ -12,30 +13,66 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
 import it.hurts.sskirillss.relics.utils.MathUtils;
-import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import vazkii.botania.api.block.Bound;
+import vazkii.botania.api.item.SequentialBreaker;
+import vazkii.botania.api.mana.ManaItemHandler;
 import vazkii.botania.client.fx.WispParticleData;
+import vazkii.botania.common.advancements.LokiPlaceTrigger;
+import vazkii.botania.common.handler.EquipmentHandler;
+import vazkii.botania.common.helper.ItemNBTHelper;
+import vazkii.botania.common.helper.PlayerHelper;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfThorItem;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 @Mixin(RingOfThorItem.class)
 public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
+    private static final String TAG_CURSOR_LIST = "cursorList";
+    private static final String TAG_CURSOR_PREFIX = "cursor";
+    private static final String TAG_CURSOR_COUNT = "cursorCount";
+    private static final String TAG_X_OFFSET = "xOffset";
+    private static final String TAG_Y_OFFSET = "yOffset";
+    private static final String TAG_Z_OFFSET = "zOffset";
+    private static final String TAG_X_ORIGIN = "xOrigin";
+    private static final String TAG_Y_ORIGIN = "yOrigin";
+    private static final String TAG_Z_ORIGIN = "zOrigin";
+    private static boolean recCall = false;
+
     public RingOfThorItemMixin(Properties props) {
         super(props);
     }

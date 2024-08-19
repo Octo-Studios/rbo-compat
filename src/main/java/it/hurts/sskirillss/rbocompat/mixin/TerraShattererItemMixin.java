@@ -38,10 +38,12 @@ public class TerraShattererItemMixin {
     public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
         CompoundTag nbtData = itemStack.getOrCreateTag();
 
-        if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos") && !itemStack.getTag().contains("GetZPos")) {
+        if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos")
+                && !itemStack.getTag().contains("GetZPos") && !itemStack.getTag().contains("selectMode")) {
             nbtData.putInt("GetXPos", 1);
             nbtData.putInt("GetYPos", 1);
             nbtData.putInt("GetZPos", 1);
+            nbtData.putBoolean("selectMode", false);
 
             itemStack.setTag(nbtData);
         }
