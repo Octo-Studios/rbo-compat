@@ -17,6 +17,6 @@ public class CentralPanelX extends CentralPanelBaseWidget {
         int textX = this.getX() + (this.width - MC.font.width(this.getMessage())) / 2;
         int textY = this.getY() + (this.height - MC.font.lineHeight) / 2;
 
-        pGuiGraphics.drawString(Minecraft.getInstance().font, Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))), textX - 2, textY, 0x556B2F);
+        pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))), textX + 2 - (MC.font.width(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))) / 2), textY, 0x556B2F);
     }
 }

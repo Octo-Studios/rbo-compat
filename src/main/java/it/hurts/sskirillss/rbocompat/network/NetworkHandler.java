@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.network;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateModeShatterPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -26,6 +27,11 @@ public class NetworkHandler {
                 .encoder(UpdateItemStackPacket::encode)
                 .decoder(UpdateItemStackPacket::decode)
                 .consumerMainThread(UpdateItemStackPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(UpdateModeShatterPacket.class, nextID())
+                .encoder(UpdateModeShatterPacket::encode)
+                .decoder(UpdateModeShatterPacket::decode)
+                .consumerMainThread(UpdateModeShatterPacket::handle)
                 .add();
 
     }

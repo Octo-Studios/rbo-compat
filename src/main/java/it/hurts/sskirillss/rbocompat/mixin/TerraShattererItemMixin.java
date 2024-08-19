@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.mixin;
 
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,20 +34,16 @@ import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattere
 import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem.isEnabled;
 
 @Mixin(TerraShattererItem.class)
-public class TerraShattererItemMixin {
+public abstract class TerraShattererItemMixin {
 
     @Inject(method = "inventoryTick", at = @At("HEAD"), cancellable = true, remap = false)
     public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
-        CompoundTag nbtData = itemStack.getOrCreateTag();
 
         if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos")
                 && !itemStack.getTag().contains("GetZPos") && !itemStack.getTag().contains("selectMode")) {
-            nbtData.putInt("GetXPos", 1);
-            nbtData.putInt("GetYPos", 1);
-            nbtData.putInt("GetZPos", 1);
-            nbtData.putBoolean("selectMode", false);
-
-            itemStack.setTag(nbtData);
+            NBTUtils.setInt(itemStack, "GetXPos", 1);
+            NBTUtils.setInt(itemStack, "GetYPos", 1);
+            NBTUtils.setInt(itemStack, "GetZPos", 1);
         }
     }
 

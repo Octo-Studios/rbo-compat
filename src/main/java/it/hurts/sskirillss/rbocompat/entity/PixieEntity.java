@@ -28,9 +28,7 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.relic.RingOfLokiItem;
 
 import java.awt.*;
 import java.util.UUID;
@@ -109,7 +107,7 @@ public class PixieEntity extends Mob {
         BlockPos blockPos = this.blockPosition();
         BlockState blockState = level().getBlockState(blockPos);
         Block block = level().getBlockState(this.blockPosition()).getBlock();
-        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
         if (!(itemStack.getItem() instanceof IRelicItem relic))
             return;

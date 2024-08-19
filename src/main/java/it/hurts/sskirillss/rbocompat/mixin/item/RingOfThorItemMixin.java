@@ -1,7 +1,7 @@
 package it.hurts.sskirillss.rbocompat.mixin.item;
 
-import com.google.common.collect.ImmutableList;
-import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
+import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
+import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
@@ -13,65 +13,28 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
 import it.hurts.sskirillss.relics.utils.MathUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import vazkii.botania.api.block.Bound;
-import vazkii.botania.api.item.SequentialBreaker;
-import vazkii.botania.api.mana.ManaItemHandler;
-import vazkii.botania.client.fx.WispParticleData;
-import vazkii.botania.common.advancements.LokiPlaceTrigger;
-import vazkii.botania.common.handler.EquipmentHandler;
-import vazkii.botania.common.helper.ItemNBTHelper;
-import vazkii.botania.common.helper.PlayerHelper;
-import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.equipment.tool.ToolCommons;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfThorItem;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 @Mixin(RingOfThorItem.class)
-public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
-    private static final String TAG_CURSOR_LIST = "cursorList";
-    private static final String TAG_CURSOR_PREFIX = "cursor";
-    private static final String TAG_CURSOR_COUNT = "cursorCount";
-    private static final String TAG_X_OFFSET = "xOffset";
-    private static final String TAG_Y_OFFSET = "yOffset";
-    private static final String TAG_Z_OFFSET = "zOffset";
-    private static final String TAG_X_ORIGIN = "xOrigin";
-    private static final String TAG_Y_ORIGIN = "yOrigin";
-    private static final String TAG_Z_ORIGIN = "zOrigin";
-    private static boolean recCall = false;
+public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem {
+    private static final String ORIGINAL_SPEED_KEY = "OriginalSpeed";
 
     public RingOfThorItemMixin(Properties props) {
         super(props);
@@ -81,37 +44,31 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
     public RelicData constructDefaultRelicData() {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder("entropy")
+                        .ability(AbilityData.builder("guardian")
                                 .active(CastData.builder()
                                         .type(CastType.INSTANTANEOUS)
-                                        .castPredicate("entropy", (player, stack) -> player.getMainHandItem().getItem().toString().contains("terra_pick"))
                                         .build())
-                                .stat(StatData.builder("capacity")
-                                        .initialValue(2D, 5D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                .stat(StatData.builder("efficiency")
+                                        .initialValue(0.1D, 1D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
+                                        .formatValue(value -> (int) MathUtils.round(value * 10, 1))
                                         .build())
-                                .stat(StatData.builder("capacity")
-                                        .initialValue(2D, 5D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                .stat(StatData.builder("duration")
+                                        .initialValue(1D, 10D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
+                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
-                        .ability(AbilityData.builder("revelation")
-                                .active(CastData.builder()
-                                        .type(CastType.INSTANTANEOUS)
-                                        .build())
+                        .ability(AbilityData.builder("immunity")
                                 .stat(StatData.builder("radius")
-                                        .initialValue(9D, 19D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.25D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .initialValue(1, 5)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
+                                        .formatValue(Double::doubleValue)
                                         .build())
-                                .build())
-                        .ability(AbilityData.builder("rumble")
-                                .stat(StatData.builder("capacity")
-                                        .initialValue(2D, 5D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                .stat(StatData.builder("efficiency")
+                                        .initialValue(1D, 5)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
+                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
                         .build())
@@ -121,29 +78,73 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements IRelicItem {
 
     @Override
     public void castActiveAbility(ItemStack stack, Player player, String ability, CastType type, CastStage stage) {
-        if (ability.equals("entropy") && player.level().isClientSide) {
-            Minecraft.getInstance().setScreen(new MiningAreaScreen());
+        if (ability.equals("guardian")) {
+            Level level = player.getCommandSenderWorld();
+
+            this.setAbilityCooldown(stack, "guardian", 400 - (20 * this.getLevel(stack)));
+
+            PixieEntity pixieEntity = new PixieEntity(EntityRegistry.PIXIE.get(), level);
+
+            pixieEntity.setLifeTimeEntity(500);
+            pixieEntity.setPlayer(player);
+            pixieEntity.setPlayerUUID(player.getUUID());
+            pixieEntity.setPos(player.getX(), player.getY(), player.getZ());
+
+            level.addFreshEntity(pixieEntity);
         }
+    }
 
-        if (ability.equals("revelation")) {
-            BlockPos pos = player.blockPosition();
-            Level world = player.level();
-            int range = (int) this.getAbilityValue(stack, "revelation", "radius");
-            long seedRandom = world.random.nextLong();
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player)) return;
 
-            for (BlockPos pos_ : BlockPos.betweenClosed(pos.offset(-range, -range, -range), pos.offset(range, range, range))) {
-                BlockState state = world.getBlockState(pos_);
-                Block block = state.getBlock();
+        Level world = player.level();
 
-                if (state.is(BlockTags.create(new ResourceLocation("forge", "ores")))) {
+        for (Mob entity : gatherMobs(world, player, stack)) {
+            if (entity instanceof PixieEntity) return;
 
-                    Random rand = new Random((long) BuiltInRegistries.BLOCK.getKey(block).hashCode() ^ seedRandom);
-                    WispParticleData data = WispParticleData.wisp(0.25F, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 8.0F, false);
-                    world.addParticle(data, true, (float) pos_.getX() + world.random.nextFloat(), (float) pos_.getY() + world.random.nextFloat(), (float) pos_.getZ() + world.random.nextFloat(), 0.0, 0.0, 0.0);
-                }
+            AttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+
+            if (!entity.getPersistentData().contains(ORIGINAL_SPEED_KEY))
+                entity.getPersistentData().putDouble(ORIGINAL_SPEED_KEY, speedAttribute.getBaseValue());
+
+            double originalSpeed = entity.getPersistentData().getDouble(ORIGINAL_SPEED_KEY);
+
+            if (player.distanceTo(entity) <= this.getAbilityValue(stack, "immunity", "radius")) {
+                speedAttribute.setBaseValue(originalSpeed * Math.max(0.2, 1 - (player.distanceTo(entity) * this.getAbilityValue(stack, "immunity", "efficiency"))));
+            } else {
+                speedAttribute.setBaseValue(originalSpeed);
             }
         }
     }
+
+    @Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player) || player.getCommandSenderWorld().isClientSide()
+                || stack.getItem() == newStack.getItem())
+            return;
+
+        for (Mob entity : gatherMobs(player.level(), player, stack)) {
+            if (entity.getPersistentData().contains(ORIGINAL_SPEED_KEY))
+                entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(entity.getPersistentData().getFloat(ORIGINAL_SPEED_KEY));
+        }
+
+        for (Entity entity : player.level().getEntities(player, new AABB(player.blockPosition()).inflate(10))) {
+            if (entity instanceof PixieEntity pixieEntity && pixieEntity.getPlayerUUID().equals(player.getUUID()))
+                pixieEntity.discard();
+        }
+
+    }
+
+    private List<Mob> gatherMobs(Level level, Player player, ItemStack stack) {
+        return level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(this.getAbilityValue(stack, "immunity", "radius") + 3));
+    }
+
+    @Override
+    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
+        return true;
+    }
+
 
     @Inject(method = "getThorRing", at = @At("HEAD"), cancellable = true, remap = false)
     private static void getThorRing(Player player, CallbackInfoReturnable<ItemStack> cir) {
