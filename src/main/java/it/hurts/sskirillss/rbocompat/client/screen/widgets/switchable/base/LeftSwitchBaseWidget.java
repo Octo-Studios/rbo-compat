@@ -52,15 +52,17 @@ public class LeftSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
-        if (this.getMessage().contains(Component.nullToEmpty("x"))) {
+        if (this.getMessage().contains(Component.nullToEmpty("x")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(-1, 0, 0));
-        }
-        if (this.getMessage().contains(Component.nullToEmpty("y"))) {
+
+
+        if (this.getMessage().contains(Component.nullToEmpty("y")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
-        }
-        if (this.getMessage().contains(Component.nullToEmpty("z"))) {
+
+
+        if (this.getMessage().contains(Component.nullToEmpty("z")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
-        }
+
 
     }
 }
