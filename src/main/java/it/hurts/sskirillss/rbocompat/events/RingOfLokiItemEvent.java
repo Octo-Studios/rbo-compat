@@ -11,15 +11,15 @@ import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
-public class RingOfThorItemEvent {
+public class RingOfLokiItemEvent {
     private static int consecutiveBlocksMined = 0;
     private static long lastBlockMinedTime = 0;
 
     @SubscribeEvent
     public static void onBreakBlock(BlockEvent.BreakEvent event) {
-        ItemStack stack = EntityUtils.findEquippedCurio(event.getPlayer(), BotaniaItems.thorRing);
+        ItemStack stack = EntityUtils.findEquippedCurio(event.getPlayer(), BotaniaItems.lokiRing);
 
-        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.lokiRing)
             return;
 
         long currentTime = System.currentTimeMillis();
@@ -32,9 +32,9 @@ public class RingOfThorItemEvent {
 
     @SubscribeEvent
     public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-        ItemStack stack = EntityUtils.findEquippedCurio(event.getEntity(), BotaniaItems.thorRing);
+        ItemStack stack = EntityUtils.findEquippedCurio(event.getEntity(), BotaniaItems.lokiRing);
 
-        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.lokiRing)
             return;
 
         event.setNewSpeed(event.getOriginalSpeed() + (consecutiveBlocksMined * 0.3f));
