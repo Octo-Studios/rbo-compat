@@ -89,13 +89,13 @@ public class MiningAreaScreen extends Screen {
         int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelX(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight, Component.literal("x")));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelY(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight, Component.literal("y")));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelZ(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight, Component.literal("z")));
 
         int button2Width = 35;
         int button2Height = 34;
@@ -149,10 +149,8 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.scale(74, 74, 74);
-
-        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 297, centerY + 53, 0xFFFFFF);
-        pGuiGraphics.drawString(MC.font, "100", centerX + 297, centerY + 77, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, "100", centerX + 303 - (MC.font.width(String.valueOf("100")) / 2), centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 

@@ -1,6 +1,9 @@
 package it.hurts.sskirillss.rbocompat.client.screen.widgets;
 
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateModeShatterPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -29,6 +32,6 @@ public class ConfirmSelectionModeWidget extends AbstractButton {
 
     @Override
     public void onPress() {
-
+        NetworkHandler.sendToServer(new UpdateModeShatterPacket(true));
     }
 }

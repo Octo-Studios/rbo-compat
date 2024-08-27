@@ -15,6 +15,7 @@ import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
 public class RingOfOdinItemEvent {
+
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
         if (!(event.getEntity() instanceof Player player))

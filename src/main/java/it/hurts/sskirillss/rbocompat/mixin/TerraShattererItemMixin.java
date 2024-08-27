@@ -1,12 +1,14 @@
 package it.hurts.sskirillss.rbocompat.mixin;
 
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -14,10 +16,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import vazkii.botania.common.handler.EquipmentHandler;
 import vazkii.botania.common.helper.PlayerHelper;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.StoneOfTemperanceItem;
@@ -32,18 +36,16 @@ import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattere
 import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem.isEnabled;
 
 @Mixin(TerraShattererItem.class)
-public class TerraShattererItemMixin {
+public abstract class TerraShattererItemMixin {
 
     @Inject(method = "inventoryTick", at = @At("HEAD"), cancellable = true, remap = false)
     public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
-        CompoundTag nbtData = itemStack.getOrCreateTag();
 
-        if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos") && !itemStack.getTag().contains("GetZPos")) {
-            nbtData.putInt("GetXPos", 1);
-            nbtData.putInt("GetYPos", 1);
-            nbtData.putInt("GetZPos", 1);
-
-            itemStack.setTag(nbtData);
+        if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos")
+                && !itemStack.getTag().contains("GetZPos") && !itemStack.getTag().contains("selectMode")) {
+            NBTUtils.setInt(itemStack, "GetXPos", 1);
+            NBTUtils.setInt(itemStack, "GetYPos", 1);
+            NBTUtils.setInt(itemStack, "GetZPos", 1);
         }
     }
 
@@ -59,10 +61,10 @@ public class TerraShattererItemMixin {
             BlockState targetState = world.getBlockState(pos);
             if (canMine.test(targetState)) {
                 if (!world.isEmptyBlock(pos)) {
-                    boolean thor = !RingOfThorItem.getThorRing(player).isEmpty();
-                    boolean doX = thor || side.getStepX() == 0;
-                    boolean doY = thor || side.getStepY() == 0;
-                    boolean doZ = thor || side.getStepZ() == 0;
+                    boolean thor = !EquipmentHandler.findOrEmpty(BotaniaItems.lokiRing, player).isEmpty();
+                    boolean doX = side.getStepX() == 0;
+                    boolean doY = side.getStepY() == 0;
+                    boolean doZ = side.getStepZ() == 0;
                     int origLevel = getLevel(stack);
                     int level = origLevel + (thor ? 1 : 0);
                     if (StoneOfTemperanceItem.hasTemperanceActive(player) && level > 2) {
@@ -70,10 +72,18 @@ public class TerraShattererItemMixin {
                     }
 
                     int range = level - 1;
-                    int rangeY = Math.max(1, range);
                     if (range != 0 || level == 1) {
-                        Vec3i beginDiff = new Vec3i(doX ? -range : 0, doY ? -1 : 0, doZ ? -range : 0);
-                        Vec3i endDiff = new Vec3i(doX ? range : 0, doY ? rangeY * 2 - 1 : 0, doZ ? range : 0);
+                        int rangeX = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2);
+                        int rangeY = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos") / 2);
+                        int rangeZ = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos") / 2);
+
+                        System.out.println(doX + " DO X");
+                        System.out.println(doY + " DO Y");
+                        System.out.println(doZ + " DO Z");
+
+                        Vec3i beginDiff = new Vec3i(doX ? -rangeX : 0, doY ? -rangeY : 0, -3);
+                        Vec3i endDiff = new Vec3i(doX ? rangeX : 0, doY ? rangeY : 0, doZ ? rangeZ : 0);
+
                         ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
                         if (origLevel == 5) {
                             PlayerHelper.grantCriterion((ServerPlayer) player, ResourceLocationHelper.prefix("challenge/rank_ss_pick"), "code_triggered");
