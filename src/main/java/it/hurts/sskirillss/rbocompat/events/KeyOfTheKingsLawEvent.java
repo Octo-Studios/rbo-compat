@@ -24,7 +24,7 @@ import vazkii.botania.common.item.BotaniaItems;
 
 import java.util.Random;
 
-@Mod.EventBusSubscriber
+//@Mod.EventBusSubscriber
 public class KeyOfTheKingsLawEvent {
 
 }
