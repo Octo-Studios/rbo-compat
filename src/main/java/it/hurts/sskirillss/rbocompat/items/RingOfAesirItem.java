@@ -12,6 +12,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOp
 import it.hurts.sskirillss.relics.utils.MathUtils;
 
 public class RingOfAesirItem extends RelicItem {
+
     @Override
     public RelicData constructDefaultRelicData() {
         return RelicData.builder()

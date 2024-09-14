@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
 
 @Mod.EventBusSubscriber
-public class RingOfLokiItemEvent {
+public class RingOfThorItemEvent {
     private static int consecutiveBlocksMined = 0;
     private static long lastBlockMinedTime = 0;
 

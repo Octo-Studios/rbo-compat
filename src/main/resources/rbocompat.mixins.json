@@ -5,9 +5,10 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "rbocompat.refmap.json",
   "mixins": [
-    "item.RingOfLokiItemMixin",
+    "init.BotaniaItemsMixin",
+    "item.RingOfThorItemMixin",
     "item.RingOfOdinItemMixin",
-    "item.RingOfThorItemMixin"
+    "item.RingOfLokiItemMixin"
   ],
   "client": [
   ],
