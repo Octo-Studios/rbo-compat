@@ -21,9 +21,9 @@ import java.util.List;
 
 import static net.minecraft.world.item.alchemy.PotionUtils.TAG_POTION;
 
-@Mod.EventBusSubscriber
-public class RingOfGrisaiaEvent {
-    @SubscribeEvent
+//@Mod.EventBusSubscriber
+public class InfinityFruitEvent {
+  //  @SubscribeEvent
     public static void onSlotClick(ContainerSlotClickEvent event) {
         if (event.getAction() != ClickAction.PRIMARY)
             return;

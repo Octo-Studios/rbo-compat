@@ -45,7 +45,7 @@ public class UpdateItemStackPacket {
             ServerPlayer player = ctx.get().getSender();
 
             if (player != null) {
-                if (EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode"))
+                if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing).getTag().getBoolean("selectMode"))
                     return;
 
                 ItemStack stack = player.getMainHandItem();

@@ -32,7 +32,7 @@ public class UpdateModeShatterPacket {
             ServerPlayer player = ctx.get().getSender();
 
             if (player != null) {
-                ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
+                ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
                 CompoundTag tag = stack.getOrCreateTag();
 
                 NBTUtils.setBoolean(stack, "selectMode", msg.mode);

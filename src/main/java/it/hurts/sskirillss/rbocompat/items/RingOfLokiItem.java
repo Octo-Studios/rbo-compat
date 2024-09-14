@@ -1,8 +1,8 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.items;
 
-import com.google.common.collect.ImmutableList;
 import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastStage;
@@ -19,7 +19,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -32,40 +31,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
-import vazkii.botania.api.item.WireframeCoordinateListProvider;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.relic.RelicBaubleItem;
-import vazkii.botania.common.item.relic.RingOfThorItem;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Mixin(RingOfThorItem.class)
-public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem, WireframeCoordinateListProvider {
-    private static final String TAG_CURSOR_LIST = "cursorList";
-    private static final String TAG_CURSOR_PREFIX = "cursor";
-    private static final String TAG_CURSOR_COUNT = "cursorCount";
-    private static final String TAG_X_OFFSET = "xOffset";
-    private static final String TAG_Y_OFFSET = "yOffset";
-    private static final String TAG_Z_OFFSET = "zOffset";
-    private static final String TAG_X_ORIGIN = "xOrigin";
-    private static final String TAG_Y_ORIGIN = "yOrigin";
-    private static final String TAG_Z_ORIGIN = "zOrigin";
+public class RingOfLokiItem extends RelicItem implements ICurioItem, IRelicItem {
 
-    public RingOfThorItemMixin(Properties props) {
-        super(props);
-    }
 
     @Override
     public RelicData constructDefaultRelicData() {
@@ -103,6 +84,13 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
                 .leveling(new LevelingData(100, 10, 100))
                 .build();
     }
+//
+//    @Inject(method = "inventoryTick", at = @At("HEAD"), cancellable = true, remap = false)
+//    public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
+//
+//        if (itemStack.getTag() != null && !itemStack.getTag().contains("selectMode"))
+//            NBTUtils.setBoolean(itemStack, "selectMode", false);
+//    }
 
     @Override
     public void castActiveAbility(ItemStack stack, Player player, String ability, CastType type, CastStage stage) {
@@ -111,6 +99,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
         }
 
         if (ability.equals("revelation")) {
+            System.out.println("GQAGf");
             BlockPos pos = player.blockPosition();
             Level world = player.level();
             int range = (int) this.getAbilityValue(stack, "revelation", "radius");
@@ -135,80 +124,25 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
         return true;
     }
 
-    @Inject(method = "getThorRing", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void getThorRing(Player player, CallbackInfoReturnable<ItemStack> cir) {
-        cir.setReturnValue(ItemStack.EMPTY);
-    }
-
-    @Override
-    public BlockPos getSourceWireframe(Player player, ItemStack stack) {
-        Minecraft mc = Minecraft.getInstance();
-
-        if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing) != stack) {
-            return null;
-        }
-
-        BlockPos currentBuildCenter = getBindingCenter(stack);
-        if (currentBuildCenter.getY() != Integer.MIN_VALUE) {
-            return currentBuildCenter;
-        } else if (mc.hitResult instanceof BlockHitResult hitRes
-                && mc.hitResult.getType() == HitResult.Type.BLOCK
-                && !getCursorList(stack).isEmpty()) {
-            return hitRes.getBlockPos();
-        }
-
-        return null;
-    }
-
-    @Override
-    public List<BlockPos> getWireframesToDraw(Player player, ItemStack stack) {
-        if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing) != stack) {
-            return ImmutableList.of();
-        }
-
-        HitResult lookPos = Minecraft.getInstance().hitResult;
-
-        if (lookPos != null
-                && lookPos.getType() == HitResult.Type.BLOCK
-                && !player.level().isEmptyBlock(((BlockHitResult) lookPos).getBlockPos())) {
-            List<BlockPos> list = getCursorList(stack);
-            BlockPos origin = getBindingCenter(stack);
-
-            for (int i = 0; i < list.size(); i++) {
-                if (origin.getY() != Integer.MIN_VALUE) {
-                    list.set(i, list.get(i).offset(origin));
-                } else {
-                    list.set(i, list.get(i).offset(((BlockHitResult) lookPos).getBlockPos()));
-                }
-            }
-
-            return list;
-        }
-
-        return ImmutableList.of();
-    }
-
-    private static BlockPos getBindingCenter(ItemStack stack) {
-        int x = NBTUtils.getInt(stack, TAG_X_ORIGIN, 0);
-        int y = NBTUtils.getInt(stack, TAG_Y_ORIGIN, Integer.MIN_VALUE);
-        int z = NBTUtils.getInt(stack, TAG_Z_ORIGIN, 0);
-        return new BlockPos(x, y, z);
-    }
-
-    private static List<BlockPos> getCursorList(ItemStack stack) {
-        CompoundTag cmp = NBTUtils.getCompound(stack, TAG_CURSOR_LIST, stack.getOrCreateTag().getCompound(TAG_CURSOR_LIST));
-        List<BlockPos> cursors = new ArrayList<>();
-
-        int count = cmp.getInt(TAG_CURSOR_COUNT);
-        for (int i = 0; i < count; i++) {
-            CompoundTag cursorCmp = cmp.getCompound(TAG_CURSOR_PREFIX + i);
-            int x = cursorCmp.getInt(TAG_X_OFFSET);
-            int y = cursorCmp.getInt(TAG_Y_OFFSET);
-            int z = cursorCmp.getInt(TAG_Z_OFFSET);
-
-            cursors.add(new BlockPos(x, y, z));
-        }
-
-        return cursors;
-    }
+//    @Inject(method = "getCursorList", at = @At("HEAD"), cancellable = true, remap = false)
+//    private static void getCursorList(ItemStack stack, CallbackInfoReturnable<List<BlockPos>> cir) {
+//        if (!stack.getTag().getBoolean("selectMode"))
+//            cir.setReturnValue(new ArrayList());
+//    }
+//
+//    @Inject(method = "onPlayerInteract", at = @At("HEAD"), cancellable = true, remap = false)
+//    private static void onPlayerAttacked(Player player, Level world, InteractionHand hand, BlockHitResult lookPos, CallbackInfoReturnable<InteractionResult> cir) {
+//        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
+//
+//        if (itemStack.getTag() == null) return;
+//
+//        if (!itemStack.getTag().getBoolean("selectMode"))
+//            cir.cancel();
+//    }
+//
+//    @Inject(method = "getUseOnContext", at = @At("HEAD"), cancellable = true, remap = false)
+//    private static void getUseOnContext(Player player, InteractionHand hand, BlockPos pos, Vec3 lookHit, Direction direction, CallbackInfoReturnable<UseOnContext> cir) {
+//        if (!EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode"))
+//            cir.cancel();
+//    }
 }
