@@ -25,7 +25,7 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
         float alpha = 1.0F;
 
-        if (EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode")) {
+        if (EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode")) {
             this.active = false;
             alpha = 0.7F;
         } else {

@@ -27,7 +27,7 @@ public class LeftSwitchBaseWidget extends AbstractButton {
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/button/left_button.png");
         float alpha = 1.0F;
 
-        if (EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode")) {
+        if (EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode")) {
             this.active = false;
             alpha = 0.7F;
         } else {

@@ -9,9 +9,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.relic.RingOfLokiItem;
 
 @Mod.EventBusSubscriber
 public class RingOfOdinItemEvent {

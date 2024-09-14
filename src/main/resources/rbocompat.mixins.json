@@ -5,10 +5,12 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "rbocompat.refmap.json",
   "mixins": [
+    "RelicBaubleItemMixin",
+    "TerraShattererItemMixin",
     "init.BotaniaItemsMixin",
-    "item.RingOfThorItemMixin",
+    "item.RingOfLokiItemMixin",
     "item.RingOfOdinItemMixin",
-    "item.RingOfLokiItemMixin"
+    "item.RingOfThorItemMixin"
   ],
   "client": [
   ],

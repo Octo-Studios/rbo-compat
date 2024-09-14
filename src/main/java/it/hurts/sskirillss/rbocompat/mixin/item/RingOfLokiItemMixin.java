@@ -1,5 +1,6 @@
 package it.hurts.sskirillss.rbocompat.mixin.item;
 
+import com.google.common.collect.ImmutableList;
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
@@ -15,8 +16,10 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOp
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -29,14 +32,18 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.common.helper.ItemNBTHelper;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfLokiItem;
@@ -155,34 +162,10 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
     public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
         return true;
     }
-    @Inject(method = "inventoryTick", at = @At("HEAD"), cancellable = true, remap = false)
-    public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
 
-        if (itemStack.getTag() != null && !itemStack.getTag().contains("selectMode"))
-            NBTUtils.setBoolean(itemStack, "selectMode", false);
-    }
-
-    @Inject(method = "getCursorList", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void getCursorList(ItemStack stack, CallbackInfoReturnable<List<BlockPos>> cir) {
-        if (!stack.getTag().getBoolean("selectMode"))
-            cir.setReturnValue(new ArrayList());
-    }
-
-    @Inject(method = "onPlayerInteract", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void onPlayerAttacked(Player player, Level world, InteractionHand hand, BlockHitResult lookPos, CallbackInfoReturnable<InteractionResult> cir) {
-        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
-
-        if (itemStack.getTag() == null) return;
-
-        if (!itemStack.getTag().getBoolean("selectMode"))
-            cir.cancel();
-    }
-
-    @Inject(method = "getUseOnContext", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void getUseOnContext(Player player, InteractionHand hand, BlockPos pos, Vec3 lookHit, Direction direction, CallbackInfoReturnable<UseOnContext> cir) {
-        if (!EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode"))
-            cir.cancel();
-    }
-
+//    @Inject(method = "onPlayerInteract", at = @At("HEAD"), cancellable = true, remap = false)
+//    private static void onPlayerAttacked(Player player, Level world, InteractionHand hand, BlockHitResult lookPos, CallbackInfoReturnable<InteractionResult> cir) {
+//        cir.cancel();
+//    }
 
 }
