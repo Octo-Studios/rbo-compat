@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "rbocompat.refmap.json",
   "mixins": [
+    "BotaniaAPIImplMixin",
     "RelicBaubleItemMixin",
     "TerraShattererItemMixin",
     "init.BotaniaItemsMixin",

@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.mixin.item;
 
 import com.google.common.collect.ImmutableList;
 import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
+import it.hurts.sskirillss.rbocompat.events.RingOfThorItemEvent;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
@@ -26,6 +27,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -41,9 +43,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import vazkii.botania.api.item.SequentialBreaker;
 import vazkii.botania.api.item.WireframeCoordinateListProvider;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfThorItem;
 
@@ -53,12 +57,6 @@ import java.util.Random;
 
 @Mixin(RingOfThorItem.class)
 public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem, WireframeCoordinateListProvider {
-    private static final String TAG_CURSOR_LIST = "cursorList";
-    private static final String TAG_CURSOR_PREFIX = "cursor";
-    private static final String TAG_CURSOR_COUNT = "cursorCount";
-    private static final String TAG_X_OFFSET = "xOffset";
-    private static final String TAG_Y_OFFSET = "yOffset";
-    private static final String TAG_Z_OFFSET = "zOffset";
     private static final String TAG_X_ORIGIN = "xOrigin";
     private static final String TAG_Y_ORIGIN = "yOrigin";
     private static final String TAG_Z_ORIGIN = "zOrigin";
@@ -153,7 +151,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
             return currentBuildCenter;
         } else if (mc.hitResult instanceof BlockHitResult hitRes
                 && mc.hitResult.getType() == HitResult.Type.BLOCK
-                && !getCursorList(stack).isEmpty()) {
+                && !RingOfThorItemEvent.getCursorList(stack).isEmpty()) {
             return hitRes.getBlockPos();
         }
 
@@ -162,16 +160,15 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
 
     @Override
     public List<BlockPos> getWireframesToDraw(Player player, ItemStack stack) {
-        if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing) != stack) {
+        if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing) != stack)
             return ImmutableList.of();
-        }
 
         HitResult lookPos = Minecraft.getInstance().hitResult;
 
         if (lookPos != null
                 && lookPos.getType() == HitResult.Type.BLOCK
                 && !player.level().isEmptyBlock(((BlockHitResult) lookPos).getBlockPos())) {
-            List<BlockPos> list = getCursorList(stack);
+            List<BlockPos> list = RingOfThorItemEvent.getCursorList(stack);
             BlockPos origin = getBindingCenter(stack);
 
             for (int i = 0; i < list.size(); i++) {
@@ -195,20 +192,4 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
         return new BlockPos(x, y, z);
     }
 
-    private static List<BlockPos> getCursorList(ItemStack stack) {
-        CompoundTag cmp = NBTUtils.getCompound(stack, TAG_CURSOR_LIST, stack.getOrCreateTag().getCompound(TAG_CURSOR_LIST));
-        List<BlockPos> cursors = new ArrayList<>();
-
-        int count = cmp.getInt(TAG_CURSOR_COUNT);
-        for (int i = 0; i < count; i++) {
-            CompoundTag cursorCmp = cmp.getCompound(TAG_CURSOR_PREFIX + i);
-            int x = cursorCmp.getInt(TAG_X_OFFSET);
-            int y = cursorCmp.getInt(TAG_Y_OFFSET);
-            int z = cursorCmp.getInt(TAG_Z_OFFSET);
-
-            cursors.add(new BlockPos(x, y, z));
-        }
-
-        return cursors;
-    }
 }
