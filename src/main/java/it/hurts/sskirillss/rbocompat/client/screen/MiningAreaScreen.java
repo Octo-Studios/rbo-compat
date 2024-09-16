@@ -1,6 +1,8 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
@@ -15,6 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -135,15 +138,19 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.translate(centerX + 83, centerY + 85, 100);  // Здесь 100 - это значение Z-координаты
+        poseStack.translate(centerX + 83, centerY + 85, 100);
         poseStack.translate(0, Math.sin((MC.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+
         poseStack.mulPose(Axis.YP.rotationDegrees(MC.level.getGameTime() % 360 + pPartialTick));
         poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
+
         poseStack.scale(74, 74, 74);
+        Lighting.setupForFlatItems();
 
         MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
 
-        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, 0, poseStack, bufferSource, MC.level, 0);
+        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, MC.level, 0);
+        Lighting.setupFor3DItems();
 
         poseStack.popPose();
 

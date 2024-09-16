@@ -52,8 +52,8 @@ public abstract class TerraShattererItemMixin {
     }
 
     /**
-     * @author
-     * @reason
+     * @author Amiri163
+     * @reason Without this it won't work
      */
     @Overwrite(remap = false)
     public void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side) {
