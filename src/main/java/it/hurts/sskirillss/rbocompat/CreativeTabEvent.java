@@ -62,11 +62,14 @@ public class CreativeTabEvent {
 
                     int range = level - 1;
                     if (range != 0 || level == 1) {
+                        int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
+
                         int rangeX = (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2);
-                        int rangeY = side.getStepY() == 0 ? ((player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos") / 2) * 2 - 1) : 0;
+                        int rangeY = side.getStepY() == 0 ? ((rangeYHeight / 2) * 2 - 1) : 0;
                         int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos");
+
                         Vec3i beginDiff, endDiff;
-                        System.out.println(side);
+
                         switch (side) {
                             case NORTH:
                                 beginDiff = new Vec3i(-rangeX, doY ? -1 : 0, 0);
@@ -85,8 +88,8 @@ public class CreativeTabEvent {
                                 endDiff = new Vec3i(-rangeZ, rangeY, rangeX);
                                 break;
                             default:
-                                beginDiff = new Vec3i(-rangeX, 0, -rangeZ);
-                                endDiff = new Vec3i(rangeX, 10, rangeZ);
+                                beginDiff = new Vec3i(-rangeX, doY ? 1 : 0, -rangeZ / 2);
+                                endDiff = new Vec3i(rangeX, side == Direction.UP ? -rangeYHeight : rangeYHeight, rangeZ / 2);
                         }
 
                         ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
