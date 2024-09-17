@@ -51,57 +51,40 @@ public class CreativeTabEvent {
             };
             BlockState targetState = world.getBlockState(pos);
             if (canMine.test(targetState)) {
-                if (!world.isEmptyBlock(pos)) {
+                if (world.isEmptyBlock(pos)) return;
 
-                    int origLevel = getLevel(stack);
-                    int level = origLevel;
+                int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
 
-                    if (StoneOfTemperanceItem.hasTemperanceActive(player) && level > 2)
-                        level = 2;
+                int rangeX = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2;
+                int rangeY = rangeYHeight - 1;
+                int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos") - 1;
+                boolean doHeight = rangeY == 0;
 
-                    int range = level - 1;
-                    if (range != 0 || level == 1) {
-                        int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
+                Vec3i beginDiff, endDiff;
 
-                        int rangeX = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2;
-                        int rangeY = rangeYHeight - 1;
-                        int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos") - 1;
-                        System.out.println(rangeY);
-                        boolean doHeight = rangeY == 0;
-
-                        //  if (rangeX < 1 && rangeY < 1 && rangeZ < 1) return;
-
-                        Vec3i beginDiff, endDiff;
-
-                        switch (side) {
-                            case NORTH:
-                                beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
-                                endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, rangeZ);
-                                break;
-                            case SOUTH:
-                                beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
-                                endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, -rangeZ);
-                                break;
-                            case WEST:
-                                beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
-                                endDiff = new Vec3i(rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
-                                break;
-                            case EAST:
-                                beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
-                                endDiff = new Vec3i(-rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
-                                break;
-                            default:
-                                beginDiff = new Vec3i(-rangeX, side.getStepY() == 0 ? 1 : 0, -rangeZ / 2);
-                                endDiff = new Vec3i(rangeX, side == Direction.UP ? -rangeYHeight : rangeYHeight, rangeZ / 2);
-                        }
-
-                        ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
-                        if (origLevel == 5) {
-                            PlayerHelper.grantCriterion((ServerPlayer) player, ResourceLocationHelper.prefix("challenge/rank_ss_pick"), "code_triggered");
-                        }
-
-                    }
+                switch (side) {
+                    case NORTH:
+                        beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
+                        endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, rangeZ);
+                        break;
+                    case SOUTH:
+                        beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
+                        endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, -rangeZ);
+                        break;
+                    case WEST:
+                        beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
+                        endDiff = new Vec3i(rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
+                        break;
+                    case EAST:
+                        beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
+                        endDiff = new Vec3i(-rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
+                        break;
+                    default:
+                        beginDiff = new Vec3i(-rangeX, -rangeY, -rangeZ / 2);
+                        endDiff = new Vec3i(rangeX, side == Direction.UP ? rangeYHeight : rangeY, rangeZ / 2);
                 }
+
+                ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
             }
         }
     }

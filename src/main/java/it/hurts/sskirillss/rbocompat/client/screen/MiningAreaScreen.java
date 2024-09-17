@@ -12,6 +12,8 @@ import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.*;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,10 +25,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.checkerframework.checker.units.qual.C;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.awt.*;
 
@@ -115,8 +120,17 @@ public class MiningAreaScreen extends Screen {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pGuiGraphics);
 
+        Player player = MC.player;
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
+            return;
+
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
+
         TextureManager manager = MC.getTextureManager();
+
         PoseStack poseStack = new PoseStack();
 
         poseStack.pushPose();
@@ -157,7 +171,9 @@ public class MiningAreaScreen extends Screen {
         poseStack.pushPose();
 
         pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
-        pGuiGraphics.drawString(MC.font, "100", centerX + 303 - (MC.font.width(String.valueOf("100")) / 2), centerY + 77, 0xFFFFFF);
+
+        String value = String.valueOf((int) Math.floor(relic.getAbilityValue(stack, "entropy", "capacity")) + TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50);
+        pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 

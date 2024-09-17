@@ -5,6 +5,7 @@ import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import vazkii.botania.common.item.BotaniaItems;
 
 public class LeftSwitchBaseWidget extends AbstractButton {
@@ -55,15 +57,11 @@ public class LeftSwitchBaseWidget extends AbstractButton {
         if (this.getMessage().contains(Component.nullToEmpty("x")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(-1, 0, 0));
 
-
         if (this.getMessage().contains(Component.nullToEmpty("y")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
 
-
         if (this.getMessage().contains(Component.nullToEmpty("z")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
-
-
     }
 }
 

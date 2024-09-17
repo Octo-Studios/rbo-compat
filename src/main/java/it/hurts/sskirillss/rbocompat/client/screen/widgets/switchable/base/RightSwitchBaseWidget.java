@@ -4,14 +4,20 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 public class RightSwitchBaseWidget extends AbstractButton {
 
@@ -50,17 +56,26 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
+        Player player = Minecraft.getInstance().player;
+        ItemStack relicStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if ((((IRelicItem) relicStack.getItem()).getAbilityValue(relicStack, "entropy", "capacity"))
+                + TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50 < volumeCalculation())
+            return;
+
         if (this.getMessage().contains(Component.nullToEmpty("x")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(1, 0, 0));
-
 
         if (this.getMessage().contains(Component.nullToEmpty("y")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
 
-
         if (this.getMessage().contains(Component.nullToEmpty("z")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
+    }
 
+    public static int volumeCalculation() {
+        CompoundTag tag = InventoryUtil.getItemStackTerraPix().getOrCreateTag();
 
+        return tag.getInt("GetXPos") * tag.getInt("GetYPos") * tag.getInt("GetZPos");
     }
 }

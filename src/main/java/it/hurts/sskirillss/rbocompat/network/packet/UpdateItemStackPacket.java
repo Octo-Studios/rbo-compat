@@ -1,6 +1,8 @@
 package it.hurts.sskirillss.rbocompat.network.packet;
 
 import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
+import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
 import lombok.Getter;
@@ -43,22 +45,22 @@ public class UpdateItemStackPacket {
     public static void handle(UpdateItemStackPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
+            ItemStack stack = player.getMainHandItem();
 
-            if (player != null) {
-                if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing).getTag().getBoolean("selectMode"))
-                    return;
+            if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing).getTag().getBoolean("selectMode"))
+                return;
 
-                ItemStack stack = player.getMainHandItem();
-                CompoundTag tag = stack.getOrCreateTag();
+            CompoundTag tag = stack.getOrCreateTag();
 
-                NBTUtils.setInt(stack, "GetXPos", Math.max(1, tag.getInt("GetXPos") + msg.xPos));
-                NBTUtils.setInt(stack, "GetYPos", Math.max(1, tag.getInt("GetYPos") + msg.yPos));
-                NBTUtils.setInt(stack, "GetZPos", Math.max(1, tag.getInt("GetZPos") + msg.zPos));
+            NBTUtils.setInt(stack, "GetXPos", Math.max(1, tag.getInt("GetXPos") + msg.xPos));
+            NBTUtils.setInt(stack, "GetYPos", Math.max(1, tag.getInt("GetYPos") + msg.yPos));
+            NBTUtils.setInt(stack, "GetZPos", Math.max(1, tag.getInt("GetZPos") + msg.zPos));
 
-                stack.setTag(tag);
-            }
+            stack.setTag(tag);
+
         });
 
         ctx.get().setPacketHandled(true);
     }
+
 }
