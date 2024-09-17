@@ -58,37 +58,40 @@ public class CreativeTabEvent {
 
                     if (StoneOfTemperanceItem.hasTemperanceActive(player) && level > 2)
                         level = 2;
-                    boolean doY = side.getStepY() == 0;
 
                     int range = level - 1;
                     if (range != 0 || level == 1) {
                         int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
 
-                        int rangeX = (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2);
-                        int rangeY = side.getStepY() == 0 ? ((rangeYHeight / 2) * 2 - 1) : 0;
-                        int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos");
+                        int rangeX = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2;
+                        int rangeY = rangeYHeight - 1;
+                        int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos") - 1;
+                        System.out.println(rangeY);
+                        boolean doHeight = rangeY == 0;
+
+                        //  if (rangeX < 1 && rangeY < 1 && rangeZ < 1) return;
 
                         Vec3i beginDiff, endDiff;
 
                         switch (side) {
                             case NORTH:
-                                beginDiff = new Vec3i(-rangeX, doY ? -1 : 0, 0);
-                                endDiff = new Vec3i(rangeX, rangeY, rangeZ);
+                                beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
+                                endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, rangeZ);
                                 break;
                             case SOUTH:
-                                beginDiff = new Vec3i(-rangeX, doY ? -1 : 0, 0);
-                                endDiff = new Vec3i(rangeX, rangeY, -rangeZ);
+                                beginDiff = new Vec3i(-rangeX, doHeight ? 0 : -1, 0);
+                                endDiff = new Vec3i(rangeX, doHeight ? rangeY : rangeY - 1, -rangeZ);
                                 break;
                             case WEST:
-                                beginDiff = new Vec3i(0, doY ? -1 : 0, -rangeX);
-                                endDiff = new Vec3i(rangeZ, rangeY, rangeX);
+                                beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
+                                endDiff = new Vec3i(rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
                                 break;
                             case EAST:
-                                beginDiff = new Vec3i(0, doY ? -1 : 0, -rangeX);
-                                endDiff = new Vec3i(-rangeZ, rangeY, rangeX);
+                                beginDiff = new Vec3i(0, doHeight ? 0 : -1, -rangeX);
+                                endDiff = new Vec3i(-rangeZ, doHeight ? rangeY : rangeY - 1, rangeX);
                                 break;
                             default:
-                                beginDiff = new Vec3i(-rangeX, doY ? 1 : 0, -rangeZ / 2);
+                                beginDiff = new Vec3i(-rangeX, side.getStepY() == 0 ? 1 : 0, -rangeZ / 2);
                                 endDiff = new Vec3i(rangeX, side == Direction.UP ? -rangeYHeight : rangeYHeight, rangeZ / 2);
                         }
 
