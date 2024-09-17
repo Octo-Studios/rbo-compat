@@ -94,7 +94,8 @@ public class RingOfThorItemEvent {
 
         ItemStack stackRelic = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
-        if (!(stackRelic.getItem() instanceof IRelicItem) || stackRelic.getItem() != BotaniaItems.thorRing || !player.isShiftKeyDown()) {
+        if (!(stackRelic.getItem() instanceof IRelicItem) || stackRelic.getItem() != BotaniaItems.thorRing || !player.isShiftKeyDown()
+                || !stackRelic.getTag().getBoolean("selectMode")) {
             return;
         }
 
@@ -102,7 +103,7 @@ public class RingOfThorItemEvent {
         var world = player.level();
         var lookPos = event.getHitVec();
 
-        ItemStack stack= player.getItemInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
         List<BlockPos> cursors = getCursorList(stackRelic);
 
         if (lookPos.getType() != HitResult.Type.BLOCK)
@@ -206,8 +207,10 @@ public class RingOfThorItemEvent {
         return cmp;
     }
 
-    private static List<BlockPos> getCursorList(ItemStack stack) {
-        //CompoundTag cmp = NBTUtils.getCompound(stack, TAG_CURSOR_LIST, stack.getOrCreateTag().getCompound(TAG_CURSOR_LIST));
+    public static List<BlockPos> getCursorList(ItemStack stack) {
+        if (!stack.getTag().getBoolean("selectMode"))
+            return new ArrayList<>();
+
         CompoundTag cmp = ItemNBTHelper.getCompound(stack, TAG_CURSOR_LIST, false);
 
         List<BlockPos> cursors = new ArrayList<>();

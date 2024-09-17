@@ -52,28 +52,42 @@ public class CreativeTabEvent {
             BlockState targetState = world.getBlockState(pos);
             if (canMine.test(targetState)) {
                 if (!world.isEmptyBlock(pos)) {
-                    boolean thor = !EquipmentHandler.findOrEmpty(BotaniaItems.thorRing, player).isEmpty();
-                    boolean doX = side.getStepX() == 0;
-                    boolean doY = side.getStepY() == 0;
-                    boolean doZ = side.getStepZ() == 0;
+
                     int origLevel = getLevel(stack);
-                    int level = origLevel + (thor ? 1 : 0);
-                    if (StoneOfTemperanceItem.hasTemperanceActive(player) && level > 2) {
+                    int level = origLevel;
+
+                    if (StoneOfTemperanceItem.hasTemperanceActive(player) && level > 2)
                         level = 2;
-                    }
+                    boolean doY = side.getStepY() == 0;
 
                     int range = level - 1;
                     if (range != 0 || level == 1) {
-                        int rangeX = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2);
-                        int rangeY = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos") / 2);
-                        int rangeZ = range + (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos") / 2);
-
-                        System.out.println(doX + " DO X");
-                        System.out.println(doY + " DO Y");
-                        System.out.println(doZ + " DO Z");
-
-                        Vec3i beginDiff = new Vec3i(doX ? -rangeX : 0, doY ? -rangeY : 0, -3);
-                        Vec3i endDiff = new Vec3i(doX ? rangeX : 0, doY ? rangeY : 0, doZ ? rangeZ : 0);
+                        int rangeX = (player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetXPos") / 2);
+                        int rangeY = side.getStepY() == 0 ? ((player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos") / 2) * 2 - 1) : 0;
+                        int rangeZ = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetZPos");
+                        Vec3i beginDiff, endDiff;
+                        System.out.println(side);
+                        switch (side) {
+                            case NORTH:
+                                beginDiff = new Vec3i(-rangeX, doY ? -1 : 0, 0);
+                                endDiff = new Vec3i(rangeX, rangeY, rangeZ);
+                                break;
+                            case SOUTH:
+                                beginDiff = new Vec3i(-rangeX, doY ? -1 : 0, 0);
+                                endDiff = new Vec3i(rangeX, rangeY, -rangeZ);
+                                break;
+                            case WEST:
+                                beginDiff = new Vec3i(0, doY ? -1 : 0, -rangeX);
+                                endDiff = new Vec3i(rangeZ, rangeY, rangeX);
+                                break;
+                            case EAST:
+                                beginDiff = new Vec3i(0, doY ? -1 : 0, -rangeX);
+                                endDiff = new Vec3i(-rangeZ, rangeY, rangeX);
+                                break;
+                            default:
+                                beginDiff = new Vec3i(-rangeX, 0, -rangeZ);
+                                endDiff = new Vec3i(rangeX, 10, rangeZ);
+                        }
 
                         ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
                         if (origLevel == 5) {
