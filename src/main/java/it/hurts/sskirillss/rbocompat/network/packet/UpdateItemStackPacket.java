@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.network.packet;
 
 import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
+import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import vazkii.botania.common.item.BotaniaItems;
@@ -57,7 +59,6 @@ public class UpdateItemStackPacket {
             NBTUtils.setInt(stack, "GetZPos", Math.max(1, tag.getInt("GetZPos") + msg.zPos));
 
             stack.setTag(tag);
-
         });
 
         ctx.get().setPacketHandled(true);

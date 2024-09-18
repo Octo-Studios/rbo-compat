@@ -2,6 +2,7 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
@@ -59,12 +60,12 @@ public class RightSwitchBaseWidget extends AbstractButton {
         Player player = Minecraft.getInstance().player;
         ItemStack relicStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
-        if ((((IRelicItem) relicStack.getItem()).getAbilityValue(relicStack, "entropy", "capacity"))
-                + TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50 < volumeCalculation())
+        if (TerraShattererItemImplementation.volumeCalculation() > (((IRelicItem) relicStack.getItem()).getAbilityValue(relicStack, "entropy", "capacity"))
+                + (TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50))
             return;
 
         if (this.getMessage().contains(Component.nullToEmpty("x")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(1, 0, 0));
+            NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
 
         if (this.getMessage().contains(Component.nullToEmpty("y")))
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
@@ -73,9 +74,4 @@ public class RightSwitchBaseWidget extends AbstractButton {
             NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
     }
 
-    public static int volumeCalculation() {
-        CompoundTag tag = InventoryUtil.getItemStackTerraPix().getOrCreateTag();
-
-        return tag.getInt("GetXPos") * tag.getInt("GetYPos") * tag.getInt("GetZPos");
-    }
 }

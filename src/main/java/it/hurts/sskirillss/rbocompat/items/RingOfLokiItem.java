@@ -124,25 +124,4 @@ public class RingOfLokiItem extends RelicItem implements ICurioItem, IRelicItem 
         return true;
     }
 
-//    @Inject(method = "getCursorList", at = @At("HEAD"), cancellable = true, remap = false)
-//    private static void getCursorList(ItemStack stack, CallbackInfoReturnable<List<BlockPos>> cir) {
-//        if (!stack.getTag().getBoolean("selectMode"))
-//            cir.setReturnValue(new ArrayList());
-//    }
-//
-//    @Inject(method = "onPlayerInteract", at = @At("HEAD"), cancellable = true, remap = false)
-//    private static void onPlayerAttacked(Player player, Level world, InteractionHand hand, BlockHitResult lookPos, CallbackInfoReturnable<InteractionResult> cir) {
-//        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing);
-//
-//        if (itemStack.getTag() == null) return;
-//
-//        if (!itemStack.getTag().getBoolean("selectMode"))
-//            cir.cancel();
-//    }
-//
-//    @Inject(method = "getUseOnContext", at = @At("HEAD"), cancellable = true, remap = false)
-//    private static void getUseOnContext(Player player, InteractionHand hand, BlockPos pos, Vec3 lookHit, Direction direction, CallbackInfoReturnable<UseOnContext> cir) {
-//        if (!EntityUtils.findEquippedCurio(player, BotaniaItems.lokiRing).getTag().getBoolean("selectMode"))
-//            cir.cancel();
-//    }
 }

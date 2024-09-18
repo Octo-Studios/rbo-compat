@@ -1,6 +1,7 @@
 package it.hurts.sskirillss.rbocompat.mixin;
 
 import it.hurts.sskirillss.rbocompat.CreativeTabEvent;
+import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.core.BlockPos;
@@ -57,6 +58,7 @@ public abstract class TerraShattererItemMixin {
      */
     @Overwrite(remap = false)
     public void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side) {
-        CreativeTabEvent.breakOtherBlock(player, stack, pos, originPos, side);
+        TerraShattererItemImplementation.breakOtherBlock(player, stack, pos, originPos, side);
     }
+
 }
