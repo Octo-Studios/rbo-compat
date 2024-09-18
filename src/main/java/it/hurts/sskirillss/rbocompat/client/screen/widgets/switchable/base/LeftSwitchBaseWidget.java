@@ -2,21 +2,18 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
-import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
-import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundEvents;
 import vazkii.botania.common.item.BotaniaItems;
 
 public class LeftSwitchBaseWidget extends AbstractButton {
@@ -79,20 +76,42 @@ public class LeftSwitchBaseWidget extends AbstractButton {
     }
 
     @Override
+    public void onPress() {
+        setRemoveVolume();
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
+        if (scrollAmount <= 0) {
+            setRemoveVolume();
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, scrollAmount);
+    }
+
+    @Override
     protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
 
     }
 
-    @Override
-    public void onPress() {
-        if (this.getMessage().contains(Component.nullToEmpty("x")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
+    public void setRemoveVolume() {
+        switch (this.getMessage().toString().replace("literal", "")) {
+            case "{x}":
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
 
-        if (this.getMessage().contains(Component.nullToEmpty("y")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
+                break;
+            case "{y}":
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
 
-        if (this.getMessage().contains(Component.nullToEmpty("z")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
+                break;
+            case "{z}":
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
+
+                break;
+        }
     }
+
+
 }
 

@@ -1,20 +1,16 @@
 package it.hurts.sskirillss.rbocompat.items;
 
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
-import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
-import it.hurts.sskirillss.relics.utils.EntityUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.util.function.Predicate;
@@ -22,6 +18,7 @@ import java.util.function.Predicate;
 import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem.isEnabled;
 
 public class TerraShattererItemImplementation {
+    private static boolean recCall = false;
 
     public static void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side) {
         if (!isEnabled(stack)) return;
@@ -68,9 +65,45 @@ public class TerraShattererItemImplementation {
                     endDiff = new Vec3i(rangeX, side == Direction.UP ? rangeYHeight : rangeY, rangeZ / 2);
             }
 
-            ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
+            removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
         }
 
+    }
+
+    public static void removeBlocksInIteration(Player player, ItemStack stack, Level world, BlockPos centerPos,
+                                               Vec3i startDelta, Vec3i endDelta, Predicate<BlockState> filter) {
+        if (recCall)
+            return;
+
+        recCall = true;
+        try {
+            for (BlockPos iterPos : BlockPos.betweenClosed(centerPos.offset(startDelta),
+                    centerPos.offset(endDelta))) {
+                if (iterPos.equals(centerPos)) {
+                    continue;
+                }
+                removeBlockWithDrops(player, stack, world, iterPos, filter);
+            }
+        } finally {
+            recCall = false;
+        }
+    }
+
+    public static void removeBlockWithDrops(Player player, ItemStack stack, Level world, BlockPos pos, Predicate<BlockState> filter) {
+        if (!world.hasChunkAt(pos))
+            return;
+
+        BlockState blockstate = world.getBlockState(pos);
+
+        if (!world.isClientSide && blockstate.getDestroyProgress(player, world, pos) != 0 && filter.test(blockstate) && !blockstate.isAir()) {
+            ItemStack save = player.getMainHandItem();
+
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+//            ((ServerPlayer) player).connection.send(
+//                    new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(blockstate), false));
+            ((ServerPlayer) player).gameMode.destroyBlock(pos);
+            player.setItemInHand(InteractionHand.MAIN_HAND, save);
+        }
     }
 
     public static int sumTotalBlocks() {
@@ -78,7 +111,7 @@ public class TerraShattererItemImplementation {
         return (picLevel * (220 - (10 - picLevel) * 22));
     }
 
-    public static int volumeCalculation() {
+   public static int actualValue() {
         int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
         int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
         int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");

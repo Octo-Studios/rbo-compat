@@ -49,9 +49,6 @@ public class UpdateItemStackPacket {
             ServerPlayer player = ctx.get().getSender();
             ItemStack stack = player.getMainHandItem();
 
-            if (EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing).getTag().getBoolean("selectMode"))
-                return;
-
             CompoundTag tag = stack.getOrCreateTag();
 
             NBTUtils.setInt(stack, "GetXPos", Math.max(1, tag.getInt("GetXPos") + msg.xPos));

@@ -167,7 +167,7 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.actualValue()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.actualValue())) / 2), centerY + 53, 0xFFFFFF);
 
         String value = String.valueOf(TerraShattererItemImplementation.sumTotalBlocks());
         pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);

@@ -11,10 +11,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundEvents;
 import vazkii.botania.common.item.BotaniaItems;
 
 public class RightSwitchBaseWidget extends AbstractButton {
@@ -26,10 +26,14 @@ public class RightSwitchBaseWidget extends AbstractButton {
     @Override
     protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/button/right_button.png");
+
+        this.active = !EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode");
+
+        float alpha = 1F;
+
         int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
         int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
         int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
-        float alpha = 1F;
 
         if (!this.active)
             alpha = 0.7F;
@@ -61,8 +65,6 @@ public class RightSwitchBaseWidget extends AbstractButton {
                 active = true;
         }
 
-        this.active = !EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode");
-
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -76,25 +78,39 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
     @Override
     public void onPress() {
+        setAddVolume();
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
+        if (scrollAmount > 0) {
+            setAddVolume();
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, scrollAmount);
+    }
+
+    public void setAddVolume() {
         int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
         int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
         int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
         switch (this.getMessage().toString().replace("literal", "")) {
             case "{x}":
-                if ((x + 2) * y * z < TerraShattererItemImplementation.sumTotalBlocks())
+                if ((x + 2) * y * z < TerraShattererItemImplementation.sumTotalBlocks()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
-
+                }
                 break;
             case "{y}":
-                if (x * (y + 1) * z < TerraShattererItemImplementation.sumTotalBlocks())
+                if (x * (y + 1) * z < TerraShattererItemImplementation.sumTotalBlocks()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
-
+                }
                 break;
             case "{z}":
-                if (x * y * (z + 1) < TerraShattererItemImplementation.sumTotalBlocks())
+                if (x * y * (z + 1) < TerraShattererItemImplementation.sumTotalBlocks()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
-
+                }
                 break;
         }
     }
