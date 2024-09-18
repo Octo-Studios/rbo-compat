@@ -6,19 +6,16 @@ import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
-import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 public class RightSwitchBaseWidget extends AbstractButton {
 
@@ -29,15 +26,42 @@ public class RightSwitchBaseWidget extends AbstractButton {
     @Override
     protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/button/right_button.png");
+        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+        float alpha = 1F;
 
-        float alpha = 1.0F;
-
-        if (EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode")) {
-            this.active = false;
+        if (!this.active)
             alpha = 0.7F;
-        } else {
-            this.active = true;
+
+        switch (this.getMessage().toString().replace("literal", "")) {
+            case "{x}":
+                if ((x + 2) * y * z > TerraShattererItemImplementation.sumTotalBlocks()) {
+                    alpha = 0.7F;
+                    active = false;
+                }
+
+                break;
+            case "{y}":
+                if (x * (y + 1) * z > TerraShattererItemImplementation.sumTotalBlocks()) {
+                    alpha = 0.7F;
+                    active = false;
+                }
+
+                break;
+            case "{z}":
+                if (x * y * (z + 1) > TerraShattererItemImplementation.sumTotalBlocks()) {
+                    alpha = 0.7F;
+                    active = false;
+                }
+
+                break;
+            default:
+                alpha = 1F;
+                active = true;
         }
+
+        this.active = !EntityUtils.findEquippedCurio(Minecraft.getInstance().player, BotaniaItems.thorRing).getTag().getBoolean("selectMode");
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -51,27 +75,32 @@ public class RightSwitchBaseWidget extends AbstractButton {
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
+    public void onPress() {
+        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
+        switch (this.getMessage().toString().replace("literal", "")) {
+            case "{x}":
+                if ((x + 2) * y * z < TerraShattererItemImplementation.sumTotalBlocks())
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
+
+                break;
+            case "{y}":
+                if (x * (y + 1) * z < TerraShattererItemImplementation.sumTotalBlocks())
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
+
+                break;
+            case "{z}":
+                if (x * y * (z + 1) < TerraShattererItemImplementation.sumTotalBlocks())
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
+
+                break;
+        }
     }
 
     @Override
-    public void onPress() {
-        Player player = Minecraft.getInstance().player;
-        ItemStack relicStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+    protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
 
-        if (TerraShattererItemImplementation.volumeCalculation() > (((IRelicItem) relicStack.getItem()).getAbilityValue(relicStack, "entropy", "capacity"))
-                + (TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50))
-            return;
-
-        if (this.getMessage().contains(Component.nullToEmpty("x")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
-
-        if (this.getMessage().contains(Component.nullToEmpty("y")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
-
-        if (this.getMessage().contains(Component.nullToEmpty("z")))
-            NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
     }
-
 }

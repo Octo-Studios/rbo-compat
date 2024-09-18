@@ -1,6 +1,9 @@
 package it.hurts.sskirillss.rbocompat.items;
 
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -10,7 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.equipment.tool.ToolCommons;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.util.function.Predicate;
 
@@ -19,13 +24,14 @@ import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattere
 public class TerraShattererItemImplementation {
 
     public static void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side) {
+        if (!isEnabled(stack)) return;
+
         Level world = player.level();
         Predicate<BlockState> canMine = (state) -> {
             boolean rightToolForDrops = !state.requiresCorrectToolForDrops() || stack.isCorrectToolForDrops(state);
             boolean rightToolForSpeed = stack.getDestroySpeed(state) > 1.0F || state.is(BlockTags.MINEABLE_WITH_SHOVEL) || state.is(BlockTags.MINEABLE_WITH_HOE);
             return rightToolForDrops && rightToolForSpeed;
         };
-
         BlockState targetState = world.getBlockState(pos);
         if (canMine.test(targetState)) {
             if (world.isEmptyBlock(pos)) return;
@@ -63,8 +69,13 @@ public class TerraShattererItemImplementation {
             }
 
             ToolCommons.removeBlocksInIteration(player, stack, world, pos, beginDiff, endDiff, canMine);
-
         }
+
+    }
+
+    public static int sumTotalBlocks() {
+        int picLevel = TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix());
+        return (picLevel * (220 - (10 - picLevel) * 22));
     }
 
     public static int volumeCalculation() {

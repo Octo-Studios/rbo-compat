@@ -11,7 +11,6 @@ import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.Centr
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
 import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import vazkii.botania.common.item.BotaniaItems;
-import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.awt.*;
 
@@ -171,7 +169,7 @@ public class MiningAreaScreen extends Screen {
 
         pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
 
-        String value = String.valueOf((int) Math.floor(relic.getAbilityValue(stack, "entropy", "capacity")) + TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix()) * 50);
+        String value = String.valueOf(TerraShattererItemImplementation.sumTotalBlocks());
         pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
