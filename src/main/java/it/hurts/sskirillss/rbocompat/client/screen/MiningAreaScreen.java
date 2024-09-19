@@ -2,16 +2,19 @@ package it.hurts.sskirillss.rbocompat.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.*;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.CentralPanelBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,13 +22,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.checkerframework.checker.units.qual.C;
 import vazkii.botania.common.item.BotaniaItems;
 
 import java.awt.*;
@@ -115,8 +117,17 @@ public class MiningAreaScreen extends Screen {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pGuiGraphics);
 
+        Player player = MC.player;
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
+            return;
+
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
+
         TextureManager manager = MC.getTextureManager();
+
         PoseStack poseStack = new PoseStack();
 
         poseStack.pushPose();
@@ -156,8 +167,10 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        pGuiGraphics.drawString(MC.font, String.valueOf(volumeCalculation()), centerX + 303 - (MC.font.width(String.valueOf(volumeCalculation())) / 2), centerY + 53, 0xFFFFFF);
-        pGuiGraphics.drawString(MC.font, "100", centerX + 303 - (MC.font.width(String.valueOf("100")) / 2), centerY + 77, 0xFFFFFF);
+        pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.actualValue()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.actualValue())) / 2), centerY + 53, 0xFFFFFF);
+
+        String value = String.valueOf(TerraShattererItemImplementation.sumTotalBlocks());
+        pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);
 
         poseStack.popPose();
 
@@ -178,12 +191,6 @@ public class MiningAreaScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    public static int volumeCalculation() {
-        CompoundTag tag = InventoryUtil.getItemStackTerraPix().getOrCreateTag();
-
-        return tag.getInt("GetXPos") * tag.getInt("GetYPos") * tag.getInt("GetZPos");
     }
 
     private int[] getTextureCenter() {

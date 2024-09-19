@@ -20,7 +20,7 @@ public class RingOfOdinItemEvent {
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof Player player))
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide)
             return;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.odinRing);
@@ -28,23 +28,21 @@ public class RingOfOdinItemEvent {
         if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.odinRing)
             return;
 
-        double multiplier = relic.getAbilityValue(stack, "retribution", "multiplier");
+        double multiplier = relic.getAbilityValue(stack, "retribution", "multiplier") / 100;
         int manaCost = (int) Math.round(multiplier * 1000);
 
         if (!ManaUtil.hasEnoughMana(player, manaCost))
             return;
 
-        if (NBTUtils.getBoolean(stack, "toggled", true)) {
-            event.setAmount((float) (event.getAmount() * relic.getAbilityValue(stack, "retribution", "multiplier")));
-        } else {
+        if (NBTUtils.getBoolean(stack, "toggled", true))
+            event.setAmount((float) (event.getAmount() * multiplier));
+        else {
             DamageSource source = event.getSource();
 
             if (!(source.getEntity() instanceof LivingEntity attacker))
                 return;
 
-            float damage = event.getAmount();
-
-            EntityUtils.hurt(attacker, source, (float) (damage * multiplier));
+            attacker.hurt(source, (float) (event.getAmount() * multiplier));
         }
 
         ManaUtil.consumeMana(player, manaCost);

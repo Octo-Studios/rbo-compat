@@ -36,15 +36,7 @@ public class NetworkHandler {
 
     }
 
-    public static void sendToClient(Object packet, ServerPlayer player) {
-        INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-    }
-
     public static void sendToServer(Object packet) {
         INSTANCE.sendToServer(packet);
-    }
-
-    public static void sendToClients(PacketDistributor.PacketTarget target, Object packet) {
-        INSTANCE.send(target, packet);
     }
 }

@@ -3,7 +3,7 @@
   "tooltip.relics.thor_ring.ability.entropy": "x",
   "tooltip.relics.thor_ring.ability.entropy.description": "x",
   "tooltip.relics.thor_ring.ability.entropy.stat.capacity.title": "x",
-  "tooltip.relics.thor_ring.ability.entropy.stat.capacity.value": "x",
+  "tooltip.relics.thor_ring.ability.entropy.stat.capacity.value": "%1$s",
   "tooltip.relics.thor_ring.ability.revelation": "x",
   "tooltip.relics.thor_ring.ability.revelation.description": "x",
   "tooltip.relics.thor_ring.ability.revelation.stat.radius.title": "x",
