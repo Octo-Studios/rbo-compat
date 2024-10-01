@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
+package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
@@ -40,21 +40,21 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
         switch (this.getMessage().toString().replace("literal", "")) {
             case "{x}":
-                if ((x + 2) * y * z > TerraShattererItemImplementation.sumTotalBlocks()) {
+                if ((x + 2) * y * z > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
             case "{y}":
-                if (x * (y + 1) * z > TerraShattererItemImplementation.sumTotalBlocks()) {
+                if (x * (y + 1) * z > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
             case "{z}":
-                if (x * y * (z + 1) > TerraShattererItemImplementation.sumTotalBlocks()) {
+                if (x * y * (z + 1) > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
@@ -98,17 +98,17 @@ public class RightSwitchBaseWidget extends AbstractButton {
 
         switch (this.getMessage().toString().replace("literal", "")) {
             case "{x}":
-                if ((x + 2) * y * z < TerraShattererItemImplementation.sumTotalBlocks()) {
+                if ((x + 2) * y * z < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
                 }
                 break;
             case "{y}":
-                if (x * (y + 1) * z < TerraShattererItemImplementation.sumTotalBlocks()) {
+                if (x * (y + 1) * z < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
                 }
                 break;
             case "{z}":
-                if (x * y * (z + 1) < TerraShattererItemImplementation.sumTotalBlocks()) {
+                if (x * y * (z + 1) < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
                 }
                 break;

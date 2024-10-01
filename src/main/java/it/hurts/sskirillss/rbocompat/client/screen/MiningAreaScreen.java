@@ -7,9 +7,9 @@ import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.CentralPanelBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.CentralPanelBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.LeftSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.RightSwitchBaseWidget;
 import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
@@ -33,7 +33,6 @@ import vazkii.botania.common.item.BotaniaItems;
 import java.awt.*;
 
 public class MiningAreaScreen extends Screen {
-    private final Minecraft MC = Minecraft.getInstance();
 
     public MiningAreaScreen() {
         super(Component.literal("MiningAreaScreen"));
@@ -45,7 +44,7 @@ public class MiningAreaScreen extends Screen {
         int x = getTextureCenter()[0];
         int y = getTextureCenter()[1];
 
-        RandomSource random = MC.player.getRandom();
+        RandomSource random = minecraft.player.getRandom();
         int xOff = random.nextInt(25);
 
         ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x9B1D8F),
@@ -117,7 +116,7 @@ public class MiningAreaScreen extends Screen {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pGuiGraphics);
 
-        Player player = MC.player;
+        Player player = minecraft.player;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
@@ -126,9 +125,9 @@ public class MiningAreaScreen extends Screen {
 
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
 
-        TextureManager manager = MC.getTextureManager();
+        TextureManager manager = minecraft.getTextureManager();
 
-        PoseStack poseStack = new PoseStack();
+        PoseStack poseStack = pGuiGraphics.pose();
 
         poseStack.pushPose();
 
@@ -143,34 +142,38 @@ public class MiningAreaScreen extends Screen {
         manager.bindForSetup(texture);
         pGuiGraphics.blit(texture, centerX, centerY, textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
 
-        ItemRenderer itemRenderer = MC.getItemRenderer();
+        ItemRenderer itemRenderer = minecraft.getItemRenderer();
 
         poseStack.popPose();
 
         poseStack.pushPose();
 
         poseStack.translate(centerX + 83, centerY + 85, 100);
-        poseStack.translate(0, Math.sin((MC.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+        poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(MC.level.getGameTime() % 360 + pPartialTick));
+        poseStack.mulPose(Axis.YP.rotationDegrees(minecraft.level.getGameTime() % 360 + pPartialTick));
         poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
 
         poseStack.scale(74, 74, 74);
-        Lighting.setupForFlatItems();
 
-        MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
 
-        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, MC.level, 0);
-        Lighting.setupFor3DItems();
+        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, minecraft.level, 0);
 
         poseStack.popPose();
 
         poseStack.pushPose();
 
-        pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.actualValue()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.actualValue())) / 2), centerY + 53, 0xFFFFFF);
+        float scaleText = 1.3F;
+        int centerTextX = (int) ((centerX + 293) / scaleText);
 
-        String value = String.valueOf(TerraShattererItemImplementation.sumTotalBlocks());
-        pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);
+        poseStack.scale(scaleText, scaleText, scaleText);
+
+        String valueFlow = String.valueOf(TerraShattererItemImplementation.actualValue());
+        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX, (int) ((centerY + 53) / scaleText), 0x8ACE5A);
+
+        String valueLimit = String.valueOf(TerraShattererItemImplementation.valueBockLimit());
+        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX, (int) ((centerY + 77) / scaleText), 0x8ACE5A);
 
         poseStack.popPose();
 
@@ -179,7 +182,7 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        if (MC.options.keyInventory.isActiveAndMatches(InputConstants.getKey(pKeyCode, pScanCode))) {
+        if (minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(pKeyCode, pScanCode))) {
             this.onClose();
 
             return true;
@@ -194,15 +197,12 @@ public class MiningAreaScreen extends Screen {
     }
 
     private int[] getTextureCenter() {
-        int scale = 2;
-        int textureWidth = 700;
-        int textureHeight = 350;
+        int textureWidth = 350;
+        int textureHeight = 175;
 
-        int screenWidth = MC.getWindow().getGuiScaledWidth();
-        int screenHeight = MC.getWindow().getGuiScaledHeight();
 
-        int x = (screenWidth - textureWidth / scale) / 2;
-        int y = (screenHeight - textureHeight / scale) / 2 - 20;
+        int x = (this.width - textureWidth) / 2;
+        int y = (this.height - textureHeight) / 2;
 
         return new int[]{x, y};
     }

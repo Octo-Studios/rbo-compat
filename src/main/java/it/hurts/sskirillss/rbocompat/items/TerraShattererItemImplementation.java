@@ -99,14 +99,13 @@ public class TerraShattererItemImplementation {
             ItemStack save = player.getMainHandItem();
 
             player.setItemInHand(InteractionHand.MAIN_HAND, stack);
-//            ((ServerPlayer) player).connection.send(
-//                    new ClientboundLevelEventPacket(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(blockstate), false));
+
             ((ServerPlayer) player).gameMode.destroyBlock(pos);
             player.setItemInHand(InteractionHand.MAIN_HAND, save);
         }
     }
 
-    public static int sumTotalBlocks() {
+    public static int valueBockLimit() {
         int picLevel = TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix());
         return (picLevel * (220 - (10 - picLevel) * 22));
     }

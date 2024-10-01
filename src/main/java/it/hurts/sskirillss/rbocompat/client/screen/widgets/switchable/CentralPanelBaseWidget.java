@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
+package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
