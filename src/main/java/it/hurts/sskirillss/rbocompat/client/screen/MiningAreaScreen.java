@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -113,15 +114,40 @@ public class MiningAreaScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pGuiGraphics);
-
+    public void renderBackground(GuiGraphics pGuiGraphics) {
+        super.renderBackground(pGuiGraphics);
         Player player = minecraft.player;
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
-        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
             return;
+
+        PoseStack poseStack = pGuiGraphics.pose();
+
+        float pPartialTick = Minecraft.getInstance().getFrameTime();
+        int scale = 4;
+
+        poseStack.pushPose();
+
+        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 88, 100);
+        poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+
+        poseStack.mulPose(Axis.YP.rotationDegrees((player.tickCount + pPartialTick) * 1.5F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(-45));
+
+        poseStack.translate(-8 * scale, -8 * scale, -150 * scale);
+
+        poseStack.scale(scale, scale, scale);
+
+        pGuiGraphics.renderItem(player.getItemInHand(InteractionHand.MAIN_HAND), 0, 0);
+
+        poseStack.popPose();
+    }
+
+    @Override
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        renderBackground(pGuiGraphics);
 
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
 
@@ -142,24 +168,6 @@ public class MiningAreaScreen extends Screen {
         manager.bindForSetup(texture);
         pGuiGraphics.blit(texture, centerX, centerY, textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
 
-        ItemRenderer itemRenderer = minecraft.getItemRenderer();
-
-        poseStack.popPose();
-
-        poseStack.pushPose();
-
-        poseStack.translate(centerX + 83, centerY + 85, 100);
-        poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
-
-        poseStack.mulPose(Axis.YP.rotationDegrees(minecraft.level.getGameTime() % 360 + pPartialTick));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
-
-        poseStack.scale(74, 74, 74);
-
-        MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
-
-        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, minecraft.level, 0);
-
         poseStack.popPose();
 
         poseStack.pushPose();
@@ -170,10 +178,10 @@ public class MiningAreaScreen extends Screen {
         poseStack.scale(scaleText, scaleText, scaleText);
 
         String valueFlow = String.valueOf(TerraShattererItemImplementation.actualValue());
-        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX, (int) ((centerY + 53) / scaleText), 0x8ACE5A);
+        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX - (minecraft.font.width(valueFlow) / 2) + 8, (int) ((centerY + 52) / scaleText), 0x8ACE5A);
 
         String valueLimit = String.valueOf(TerraShattererItemImplementation.valueBockLimit());
-        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX, (int) ((centerY + 77) / scaleText), 0x8ACE5A);
+        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX, (int) ((centerY + 76) / scaleText), 0x8ACE5A);
 
         poseStack.popPose();
 
