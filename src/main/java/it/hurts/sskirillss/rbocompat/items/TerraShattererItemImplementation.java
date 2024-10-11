@@ -29,8 +29,8 @@ public class TerraShattererItemImplementation {
             boolean rightToolForSpeed = stack.getDestroySpeed(state) > 1.0F || state.is(BlockTags.MINEABLE_WITH_SHOVEL) || state.is(BlockTags.MINEABLE_WITH_HOE);
             return rightToolForDrops && rightToolForSpeed;
         };
-        BlockState targetState = world.getBlockState(pos);
-        if (canMine.test(targetState)) {
+
+        if (canMine.test( world.getBlockState(pos))) {
             if (world.isEmptyBlock(pos)) return;
 
             int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");

@@ -2,21 +2,26 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.IScrollingScreen;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.BaseAreaWidget;
+import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
+import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 
-public class CentralPanelBaseWidget extends AbstractButton {
+public class CentralPanelBaseWidget extends BaseAreaWidget {
     public final Minecraft MC = Minecraft.getInstance();
 
     public CentralPanelBaseWidget(int pX, int pY, int pWidth, int pHeight, Component component) {
         super(pX, pY, pWidth, pHeight, component);
-
-        this.active = false;
     }
 
     @Override
@@ -50,12 +55,52 @@ public class CentralPanelBaseWidget extends AbstractButton {
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
+        setRelocateValue(scrollAmount);
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 
+        return super.mouseScrolled(mouseX, mouseY, scrollAmount);
     }
 
-    @Override
-    public void onPress() {
+    public void setRelocateValue(double scrollAmount) {
+        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
+        String message = this.getMessage().toString().replace("literal", "");
+
+        if (scrollAmount == 1) {
+            switch (message) {
+                case "{x}":
+                    if ((x + 2) * y * z < TerraShattererItemImplementation.valueBockLimit()) {
+                        NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
+                    }
+                    break;
+                case "{y}":
+                    if (x * (y + 1) * z < TerraShattererItemImplementation.valueBockLimit()) {
+                        NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
+                    }
+                    break;
+                case "{z}":
+                    if (x * y * (z + 1) < TerraShattererItemImplementation.valueBockLimit()) {
+                        NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
+                    }
+                    break;
+            }
+        } else
+            switch (message) {
+                case "{x}":
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
+
+                    break;
+                case "{y}":
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
+
+                    break;
+                case "{z}":
+                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
+
+                    break;
+            }
     }
 }

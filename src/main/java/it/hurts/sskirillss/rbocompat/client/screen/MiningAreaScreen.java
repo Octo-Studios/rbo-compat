@@ -1,15 +1,15 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.IScrollingScreen;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.CentralPanelBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.LeftSwitchBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.RightSwitchBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.MinusSwitchWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.PlusSwitchWidget;
 import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
@@ -17,18 +17,20 @@ import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
 
 import java.awt.*;
@@ -73,44 +75,55 @@ public class MiningAreaScreen extends Screen {
         int button1Height = 21;
 
         int[] buttonPos1 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 46);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height, Component.literal("x")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.x")));
 
         int[] buttonPos2 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 70);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height, Component.literal("y")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.y")));
 
         int[] buttonPos3 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 93);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height, Component.literal("z")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.z")));
 
         int[] buttonPos1Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 46);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height, Component.literal("x")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.x")));
 
         int[] buttonPos2Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 70);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height, Component.literal("y")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.y")));
 
         int[] buttonPos3Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 93);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height, Component.literal("z")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.z")));
 
         int buttonCentralWidth = 66;
         int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight, Component.literal("x")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.literal("")));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight, Component.literal("y")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.literal("")));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight, Component.literal("z")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.literal("")));
 
         int button2Width = 35;
         int button2Height = 34;
 
         int[] button2Pos = calculateButtonPosition(centerX, centerY, button2Width, button2Height, 212, 126);
 
-        this.addRenderableWidget(new ConfirmSelectionModeWidget(button2Pos[0], button2Pos[1], button2Width, button2Height));
+        this.addRenderableWidget(new ConfirmSelectionModeWidget(button2Pos[0], button2Pos[1], button2Width, button2Height))
+                .setTooltip(Tooltip.create(Component.translatable("screen.terra.area.confirm")));
 
         int[] button1Pos = calculateButtonPosition(centerX, centerY, button2Width, button2Height, 172, 126);
-        this.addRenderableWidget(new CancelSelectionModeWidget(button1Pos[0], button1Pos[1], button2Width, button2Height));
+        this.addRenderableWidget(new CancelSelectionModeWidget(button1Pos[0], button1Pos[1], button2Width, button2Height))
+                .setTooltip(Tooltip.create(Component.translatable("screen.terra.area.cancel")));
     }
 
     @Override
@@ -126,11 +139,11 @@ public class MiningAreaScreen extends Screen {
         PoseStack poseStack = pGuiGraphics.pose();
 
         float pPartialTick = Minecraft.getInstance().getFrameTime();
-        int scale = 4;
+        float scale = 4.5F;
 
         poseStack.pushPose();
 
-        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 88, 100);
+        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 90, 100);
         poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
 
         poseStack.mulPose(Axis.YP.rotationDegrees((player.tickCount + pPartialTick) * 1.5F));
@@ -219,5 +232,37 @@ public class MiningAreaScreen extends Screen {
         int x = centerX - buttonWidth / 2 + offsetX;
         int y = centerY - buttonHeight / 2 + offsetY;
         return new int[]{x, y};
+    }
+
+    @Mod.EventBusSubscriber(Dist.CLIENT)
+    public static class MiningScreenEvent {
+        public static boolean a = true;
+
+        @SubscribeEvent
+        public static void onScrollEvent(ScreenEvent.MouseScrolled.Pre event) {
+            Player player = Minecraft.getInstance().player;
+
+            ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
+                return;
+
+            double mouseX = event.getMouseX();
+            double mouseY = event.getMouseY();
+
+            for (Renderable widget : event.getScreen().renderables) {
+                if (widget instanceof IScrollingScreen button) {
+                    int x = button.x();
+                    int y = button.y();
+                    int width = button.width();
+                    int height = button.height();
+
+                    if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
+                        System.out.println(button.message());
+                    }
+                }
+
+            }
+        }
     }
 }

@@ -1,9 +1,11 @@
 buildscript {
+    ext.kotlin_version = '1.9.23'
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath 'io.freefair.gradle:lombok-plugin:6.6'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -17,6 +19,7 @@ plugins {
 }
 
 apply plugin: "io.freefair.lombok"
+apply plugin: 'kotlin'
 apply plugin: 'java'
 
 version = minecraft_version + "-" + mod_version
@@ -101,6 +104,7 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.k-4u.nl"
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -139,6 +143,7 @@ dependencies {
             }
         }
     } else file("libs").mkdir()
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
@@ -196,4 +201,7 @@ tasks.withType(JavaExec) {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+kotlin {
+    jvmToolchain(17)
 }

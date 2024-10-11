@@ -1,4 +1,13 @@
 {
+  "screen.terra.area.minus.x": "Отнимает по длине",
+  "screen.terra.area.minus.y": "Отнимает по высоте",
+  "screen.terra.area.minus.z": "Отнимает по глубине",
+  "screen.terra.area.plus.x": "Прибавляет по длине",
+  "screen.terra.area.plus.z": "Прибавляет по высоте",
+  "screen.terra.area.plus.y": "Прибавляет по глубине",
+  "screen.terra.area.cancel": "Отмена режима выделения",
+  "screen.terra.area.confirm": "Включение режима выделения",
+
   "tooltip.relics.thor_ring.description": "X",
   "tooltip.relics.thor_ring.ability.entropy": "x",
   "tooltip.relics.thor_ring.ability.entropy.description": "x",

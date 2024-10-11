@@ -35,8 +35,6 @@ import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.KeyOfTheKingsLawItem;
 import vazkii.botania.common.item.relic.RelicItem;
 
-import java.util.Random;
-
 @Mixin(KeyOfTheKingsLawItem.class)
 public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, IRelicItem {
     private static boolean flag = true;

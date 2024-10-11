@@ -8,7 +8,6 @@
     "BotaniaAPIImplMixin",
     "RelicBaubleItemMixin",
     "TerraShattererItemMixin",
-    "init.BotaniaItemsMixin",
     "item.RingOfLokiItemMixin",
     "item.RingOfOdinItemMixin",
     "item.RingOfThorItemMixin"
