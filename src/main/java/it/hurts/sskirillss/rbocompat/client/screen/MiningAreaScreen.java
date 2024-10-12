@@ -18,6 +18,7 @@ import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParti
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -74,7 +75,7 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     protected void init() {
-        if(ClientInventoryUtil.getItemStackTerraPix().getItem() != BotaniaItems.terraPick)
+        if (ClientInventoryUtil.getItemStackTerraPix().getItem() != BotaniaItems.terraPick)
             minecraft.setScreen(null);
 
         int centerX = getTextureCenter()[0];
@@ -199,10 +200,23 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.scale(scaleText, scaleText, scaleText);
 
-        String valueFlow = String.valueOf(TerraShattererItemImplementation.actualValue());
-        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX - (minecraft.font.width(valueFlow) / 2) + 8, (int) ((centerY + 52) / scaleText), 0x8ACE5A);
+        int actualValue = TerraShattererItemImplementation.actualValue();
+        int valueBockLimit = TerraShattererItemImplementation.valueBockLimit();
+        int color;
 
-        String valueLimit = String.valueOf(TerraShattererItemImplementation.valueBockLimit());
+        String valueFlow = String.valueOf(actualValue);
+
+        if (actualValue + 10 > valueBockLimit)
+            color = 0xEF5350;
+        else if (actualValue + (actualValue * 0.2F) >= valueBockLimit)
+            color = 0xFFFF00;
+        else
+            color = 0x8ACE5A;
+
+        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX - (minecraft.font.width(valueFlow) / 2) + 8, (int) ((centerY + 52) / scaleText), color);
+
+        String valueLimit = String.valueOf(valueBockLimit);
+
         pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX - (minecraft.font.width(valueLimit) / 2) + 8, (int) ((centerY + 76) / scaleText), 0x8ACE5A);
 
         poseStack.popPose();
@@ -253,7 +267,7 @@ public class MiningAreaScreen extends Screen {
 
             ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
-            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing || !(event.getScreen() instanceof MiningAreaScreen ))
+            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing || !(event.getScreen() instanceof MiningAreaScreen))
                 return;
 
             double mouseX = event.getMouseX();
