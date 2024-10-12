@@ -13,7 +13,7 @@ import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.PlusSwitch
 import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
@@ -30,11 +30,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
@@ -74,6 +74,9 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     protected void init() {
+        if(ClientInventoryUtil.getItemStackTerraPix().getItem() != BotaniaItems.terraPick)
+            minecraft.setScreen(null);
+
         int centerX = getTextureCenter()[0];
         int centerY = getTextureCenter()[1];
 
@@ -250,7 +253,7 @@ public class MiningAreaScreen extends Screen {
 
             ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
-            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
+            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing || !(event.getScreen() instanceof MiningAreaScreen ))
                 return;
 
             double mouseX = event.getMouseX();

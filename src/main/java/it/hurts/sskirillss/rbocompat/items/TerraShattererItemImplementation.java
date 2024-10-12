@@ -1,6 +1,6 @@
 package it.hurts.sskirillss.rbocompat.items;
 
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -30,7 +30,7 @@ public class TerraShattererItemImplementation {
             return rightToolForDrops && rightToolForSpeed;
         };
 
-        if (canMine.test( world.getBlockState(pos))) {
+        if (canMine.test(world.getBlockState(pos))) {
             if (world.isEmptyBlock(pos)) return;
 
             int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
@@ -105,15 +105,20 @@ public class TerraShattererItemImplementation {
         }
     }
 
-    public static int valueBockLimit() {
-        int picLevel = TerraShattererItem.getLevel(InventoryUtil.getItemStackTerraPix());
+    public static int valueBockLimit(Player player) {
+        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
         return (picLevel * (220 - (10 - picLevel) * 22));
     }
 
-   public static int actualValue() {
-        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
-        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
-        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+    public static int valueBockLimit() {
+        int picLevel = TerraShattererItem.getLevel(ClientInventoryUtil.getItemStackTerraPix());
+        return (picLevel * (220 - (10 - picLevel) * 22));
+    }
+
+    public static int actualValue() {
+        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
         return x * y * z;
     }

@@ -3,7 +3,7 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.BaseAreaWidget;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -35,13 +35,13 @@ public class CentralPanelBaseWidget extends BaseAreaWidget {
         int textY = this.getY() + (this.height - MC.font.lineHeight) / 2;
 
         if (message().equals("x"))
-            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))), textX + 2 - (MC.font.width(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))) / 2), textY, 0x556B2F);
+            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))), textX + 2 - (MC.font.width(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetXPos"))) / 2), textY, 0x556B2F);
 
         else if (message().equals("y"))
-            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetYPos"))), textX + 2 - (MC.font.width(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetYPos"))) / 2), textY, 0x556B2F);
+            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetYPos"))), textX + 2 - (MC.font.width(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetYPos"))) / 2), textY, 0x556B2F);
 
         else if (message().equals("z"))
-            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetZPos"))), textX + 2 - (MC.font.width(String.valueOf(InventoryUtil.getItemStackTerraPix().getTag().get("GetZPos"))) / 2), textY, 0x556B2F);
+            pGuiGraphics.drawString(MC.font, Component.literal(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetZPos"))), textX + 2 - (MC.font.width(String.valueOf(ClientInventoryUtil.getItemStackTerraPix().getTag().get("GetZPos"))) / 2), textY, 0x556B2F);
 
         poseStack.popPose();
     }

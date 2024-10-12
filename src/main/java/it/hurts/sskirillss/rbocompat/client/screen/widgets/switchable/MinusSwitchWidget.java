@@ -2,16 +2,13 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
-import it.hurts.sskirillss.rbocompat.client.IScrollingScreen;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.BaseAreaWidget;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -32,9 +29,9 @@ public class MinusSwitchWidget extends BaseAreaWidget {
 
         float alpha = 1F;
 
-        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
-        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
-        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
         switch (message()) {
             case "x":
