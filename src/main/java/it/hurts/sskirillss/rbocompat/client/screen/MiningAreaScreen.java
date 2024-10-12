@@ -11,6 +11,9 @@ import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.CentralPan
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.MinusSwitchWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.PlusSwitchWidget;
 import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
+import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
@@ -21,14 +24,17 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
@@ -143,7 +149,7 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 90, 100);
+        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 87, 100);
         poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
 
         poseStack.mulPose(Axis.YP.rotationDegrees((player.tickCount + pPartialTick) * 1.5F));
@@ -194,7 +200,7 @@ public class MiningAreaScreen extends Screen {
         pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX - (minecraft.font.width(valueFlow) / 2) + 8, (int) ((centerY + 52) / scaleText), 0x8ACE5A);
 
         String valueLimit = String.valueOf(TerraShattererItemImplementation.valueBockLimit());
-        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX, (int) ((centerY + 76) / scaleText), 0x8ACE5A);
+        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX - (minecraft.font.width(valueLimit) / 2) + 8, (int) ((centerY + 76) / scaleText), 0x8ACE5A);
 
         poseStack.popPose();
 
@@ -236,7 +242,7 @@ public class MiningAreaScreen extends Screen {
 
     @Mod.EventBusSubscriber(Dist.CLIENT)
     public static class MiningScreenEvent {
-        public static boolean a = true;
+        public static boolean canBeScroll;
 
         @SubscribeEvent
         public static void onScrollEvent(ScreenEvent.MouseScrolled.Pre event) {
@@ -251,17 +257,39 @@ public class MiningAreaScreen extends Screen {
             double mouseY = event.getMouseY();
 
             for (Renderable widget : event.getScreen().renderables) {
-                if (widget instanceof IScrollingScreen button) {
-                    int x = button.x();
-                    int y = button.y();
-                    int width = button.width();
-                    int height = button.height();
+                if (!(widget instanceof IScrollingScreen button)) return;
 
-                    if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
-                        System.out.println(button.message());
-                    }
+                int xButton = button.x();
+                int yButton = button.y();
+
+                if (mouseX >= xButton && mouseX <= xButton + button.width() && mouseY >= yButton && mouseY <= yButton + button.height()) {
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+
+                    if (event.getScrollDelta() == 1) {
+                        switch (button.message()) {
+                            case "x":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
+                                break;
+                            case "y":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
+                                break;
+                            case "z":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
+                                break;
+                        }
+                    } else
+                        switch (button.message()) {
+                            case "x":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
+                                break;
+                            case "y":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
+                                break;
+                            case "z":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
+                                break;
+                        }
                 }
-
             }
         }
     }

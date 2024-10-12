@@ -49,13 +49,35 @@ public class UpdateItemStackPacket {
             ServerPlayer player = ctx.get().getSender();
             ItemStack stack = player.getMainHandItem();
 
+            if (stack.getItem() != BotaniaItems.terraPick)
+                return;
+
             CompoundTag tag = stack.getOrCreateTag();
 
             NBTUtils.setInt(stack, "GetXPos", Math.max(1, tag.getInt("GetXPos") + msg.xPos));
+
+            if (NBTUtils.getInt(stack, "GetXPos", 0)
+                    * NBTUtils.getInt(stack, "GetYPos", 0)
+                    * NBTUtils.getInt(stack, "GetZPos", 0) > TerraShattererItemImplementation.valueBockLimit()) {
+                NBTUtils.setInt(stack, "GetXPos", Math.max(1, tag.getInt("GetXPos") - 2));
+            }
+
             NBTUtils.setInt(stack, "GetYPos", Math.max(1, tag.getInt("GetYPos") + msg.yPos));
+
+            if (NBTUtils.getInt(stack, "GetXPos", 0)
+                    * NBTUtils.getInt(stack, "GetYPos", 0)
+                    * NBTUtils.getInt(stack, "GetZPos", 0) > TerraShattererItemImplementation.valueBockLimit()) {
+                NBTUtils.setInt(stack, "GetYPos", Math.max(1, tag.getInt("GetYPos") - 1));
+            }
+
             NBTUtils.setInt(stack, "GetZPos", Math.max(1, tag.getInt("GetZPos") + msg.zPos));
 
-            stack.setTag(tag);
+            if (NBTUtils.getInt(stack, "GetXPos", 0)
+                    * NBTUtils.getInt(stack, "GetYPos", 0)
+                    * NBTUtils.getInt(stack, "GetZPos", 0) > TerraShattererItemImplementation.valueBockLimit()) {
+                NBTUtils.setInt(stack, "GetZPos", Math.max(1, tag.getInt("GetZPos") - 1));
+            }
+
         });
 
         ctx.get().setPacketHandled(true);

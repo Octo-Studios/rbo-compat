@@ -11,7 +11,9 @@ public class InventoryUtil {
 
     public static ItemStack getItemStackTerraPix() {
         Player player = Minecraft.getInstance().player;
-        if (player == null || player.getMainHandItem().getItem() != BotaniaItems.terraPick) return ItemStack.EMPTY;
+
+        if (player == null || player.getMainHandItem().getItem() != BotaniaItems.terraPick)
+            return ItemStack.EMPTY;
 
         return player.getMainHandItem();
     }

@@ -40,22 +40,22 @@ public class PlusSwitchWidget extends BaseAreaWidget {
         if (!this.active)
             alpha = 0.7F;
 
-        switch (this.getMessage().toString().replace("literal", "")) {
-            case "{x}":
+        switch (message()) {
+            case "x":
                 if ((x + 2) * y * z > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
-            case "{y}":
+            case "y":
                 if (x * (y + 1) * z > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
-            case "{z}":
+            case "z":
                 if (x * y * (z + 1) > TerraShattererItemImplementation.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
@@ -83,33 +83,23 @@ public class PlusSwitchWidget extends BaseAreaWidget {
         setAddVolume();
     }
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
-        if (scrollAmount > 0) {
-            setAddVolume();
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-        }
-
-        return super.mouseScrolled(mouseX, mouseY, scrollAmount);
-    }
-
     public void setAddVolume() {
         int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
         int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
         int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
-        switch (this.getMessage().toString().replace("literal", "")) {
-            case "{x}":
+        switch (this.message()) {
+            case "x":
                 if ((x + 2) * y * z < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
                 }
                 break;
-            case "{y}":
+            case "y":
                 if (x * (y + 1) * z < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
                 }
                 break;
-            case "{z}":
+            case "z":
                 if (x * y * (z + 1) < TerraShattererItemImplementation.valueBockLimit()) {
                     NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
                 }
