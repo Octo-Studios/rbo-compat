@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +40,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import vazkii.botania.api.item.WireframeCoordinateListProvider;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfThorItem;
 
@@ -68,8 +70,8 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
                                         .castPredicate("entropy", (player, stack) -> player.getMainHandItem().getItem() == BotaniaItems.terraPick)
                                         .build())
                                 .stat(StatData.builder("capacity")
-                                        .initialValue(20D, 30D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
+                                        .initialValue(10D, 15D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
                                         .formatValue(value -> (int) MathUtils.round(value, 0))
                                         .build())
                                 .build())
@@ -104,6 +106,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
         if (ability.equals("revelation")) {
             BlockPos pos = player.blockPosition();
             Level world = player.level();
+
             int range = (int) this.getAbilityValue(stack, "revelation", "radius");
             long seedRandom = world.random.nextLong();
 
@@ -112,8 +115,8 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
                 Block block = state.getBlock();
 
                 if (state.is(BlockTags.create(new ResourceLocation("forge", "ores")))) {
-
                     Random rand = new Random((long) BuiltInRegistries.BLOCK.getKey(block).hashCode() ^ seedRandom);
+
                     WispParticleData data = WispParticleData.wisp(0.25F, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 8.0F, false);
                     world.addParticle(data, true, (float) pos_.getX() + world.random.nextFloat(), (float) pos_.getY() + world.random.nextFloat(), (float) pos_.getZ() + world.random.nextFloat(), 0.0, 0.0, 0.0);
                 }
@@ -182,6 +185,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
         int x = NBTUtils.getInt(stack, TAG_X_ORIGIN, 0);
         int y = NBTUtils.getInt(stack, TAG_Y_ORIGIN, Integer.MIN_VALUE);
         int z = NBTUtils.getInt(stack, TAG_Z_ORIGIN, 0);
+
         return new BlockPos(x, y, z);
     }
 

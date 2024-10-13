@@ -18,7 +18,6 @@ import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParti
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -31,7 +30,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,6 +41,7 @@ import vazkii.botania.common.item.BotaniaItems;
 import java.awt.*;
 
 public class MiningAreaScreen extends Screen {
+    Minecraft minecraft = Minecraft.getInstance();
 
     public MiningAreaScreen() {
         super(Component.literal("MiningAreaScreen"));
@@ -51,6 +50,10 @@ public class MiningAreaScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+
+        if (minecraft.player == null)
+            return;
+
         int x = getTextureCenter()[0];
         int y = getTextureCenter()[1];
 
@@ -75,9 +78,6 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     protected void init() {
-        if (ClientInventoryUtil.getItemStackTerraPix().getItem() != BotaniaItems.terraPick)
-            minecraft.setScreen(null);
-
         int centerX = getTextureCenter()[0];
         int centerY = getTextureCenter()[1];
 
@@ -259,15 +259,10 @@ public class MiningAreaScreen extends Screen {
 
     @Mod.EventBusSubscriber(Dist.CLIENT)
     public static class MiningScreenEvent {
-        public static boolean canBeScroll;
 
         @SubscribeEvent
         public static void onScrollEvent(ScreenEvent.MouseScrolled.Pre event) {
-            Player player = Minecraft.getInstance().player;
-
-            ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
-
-            if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing || !(event.getScreen() instanceof MiningAreaScreen))
+            if (!(event.getScreen() instanceof MiningAreaScreen))
                 return;
 
             double mouseX = event.getMouseX();

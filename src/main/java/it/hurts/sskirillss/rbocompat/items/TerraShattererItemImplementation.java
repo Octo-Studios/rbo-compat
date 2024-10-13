@@ -1,6 +1,10 @@
 package it.hurts.sskirillss.rbocompat.items;
 
 import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.NBTUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -11,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.util.function.Predicate;
@@ -105,14 +110,24 @@ public class TerraShattererItemImplementation {
         }
     }
 
-    public static int valueBockLimit(Player player) {
-        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
-        return (picLevel * (220 - (10 - picLevel) * 22));
+    public static int valueBockLimit() {
+        Player player = Minecraft.getInstance().player;
+
+        if (player == null)
+            return 0;
+
+        return valueBockLimit(player);
     }
 
-    public static int valueBockLimit() {
-        int picLevel = TerraShattererItem.getLevel(ClientInventoryUtil.getItemStackTerraPix());
-        return (picLevel * (220 - (10 - picLevel) * 22));
+    public static int valueBockLimit(Player player) {
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(itemStack.getItem() instanceof IRelicItem relic) || itemStack.getItem() != BotaniaItems.thorRing)
+            return 0;
+
+        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
+
+        return (int) ((picLevel * (220 - (10 - picLevel) * 22)) + relic.getAbilityValue(itemStack, "entropy", "capacity"));
     }
 
     public static int actualValue() {

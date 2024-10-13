@@ -26,6 +26,8 @@ public abstract class TerraShattererItemMixin {
             NBTUtils.setInt(itemStack, "GetXPos", 1);
             NBTUtils.setInt(itemStack, "GetYPos", 1);
             NBTUtils.setInt(itemStack, "GetZPos", 1);
+
+            NBTUtils.setInt(itemStack, "RingVolumeBonus", 1);
         }
     }
 

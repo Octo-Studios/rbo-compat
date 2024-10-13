@@ -5,9 +5,11 @@ import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.util.function.Supplier;
 
