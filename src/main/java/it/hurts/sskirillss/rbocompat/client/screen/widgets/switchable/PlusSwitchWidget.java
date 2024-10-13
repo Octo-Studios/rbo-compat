@@ -12,6 +12,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import vazkii.botania.common.item.BotaniaItems;
 
 public class PlusSwitchWidget extends BaseAreaWidget {
@@ -78,26 +80,17 @@ public class PlusSwitchWidget extends BaseAreaWidget {
         setAddVolume();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void setAddVolume() {
-        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
-        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
-        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
-
         switch (this.message()) {
             case "x":
-                if ((x + 2) * y * z < TerraShattererItemImplementation.valueBockLimit()) {
-                    NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
-                }
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
                 break;
             case "y":
-                if (x * (y + 1) * z < TerraShattererItemImplementation.valueBockLimit()) {
-                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
-                }
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
                 break;
             case "z":
-                if (x * y * (z + 1) < TerraShattererItemImplementation.valueBockLimit()) {
-                    NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
-                }
+                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
                 break;
         }
     }

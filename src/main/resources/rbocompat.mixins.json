@@ -10,9 +10,10 @@
     "TerraShattererItemMixin",
     "item.RingOfLokiItemMixin",
     "item.RingOfOdinItemMixin",
-      "item.RingOfThorItemMixin"
+    "item.RingOfThorItemMixin"
   ],
   "client": [
+    "client.TerraShattererItemClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

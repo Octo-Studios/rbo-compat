@@ -14,15 +14,10 @@ public class RBOCompat {
     public static final String MODID = "rbocompat";
 
     public RBOCompat() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-
         MinecraftForge.EVENT_BUS.register(this);
 
         ItemRegistry.register();
         EntityRegistry.register();
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
         NetworkHandler.register();
     }
 }

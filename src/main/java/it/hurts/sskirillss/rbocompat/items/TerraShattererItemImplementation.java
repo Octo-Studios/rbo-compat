@@ -115,11 +115,6 @@ public class TerraShattererItemImplementation {
 
         if (player == null)
             return 0;
-
-        return valueBockLimit(player);
-    }
-
-    public static int valueBockLimit(Player player) {
         ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
 
         if (!(itemStack.getItem() instanceof IRelicItem relic) || itemStack.getItem() != BotaniaItems.thorRing)

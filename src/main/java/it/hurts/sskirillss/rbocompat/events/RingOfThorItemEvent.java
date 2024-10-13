@@ -194,6 +194,7 @@ public class RingOfThorItemEvent {
         cmp.putInt(TAG_X_OFFSET, pos.getX());
         cmp.putInt(TAG_Y_OFFSET, pos.getY());
         cmp.putInt(TAG_Z_OFFSET, pos.getZ());
+
         return cmp;
     }
 
