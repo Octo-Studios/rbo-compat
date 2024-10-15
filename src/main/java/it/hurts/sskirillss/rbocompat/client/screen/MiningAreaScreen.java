@@ -10,7 +10,6 @@ import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeW
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.CentralPanelBaseWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.MinusSwitchWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.PlusSwitchWidget;
-import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
@@ -37,6 +36,7 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.awt.*;
 
@@ -200,8 +200,8 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.scale(scaleText, scaleText, scaleText);
 
-        int actualValue = TerraShattererItemImplementation.actualValue();
-        int valueBockLimit = TerraShattererItemImplementation.valueBockLimit();
+        int actualValue = actualValue();
+        int valueBockLimit = valueBockLimit();
         int color;
 
         String valueFlow = String.valueOf(actualValue);
@@ -255,6 +255,30 @@ public class MiningAreaScreen extends Screen {
         int x = centerX - buttonWidth / 2 + offsetX;
         int y = centerY - buttonHeight / 2 + offsetY;
         return new int[]{x, y};
+    }
+
+    public static int valueBockLimit() {
+        Player player = Minecraft.getInstance().player;
+
+        if (player == null)
+            return 0;
+
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(itemStack.getItem() instanceof IRelicItem relic) || itemStack.getItem() != BotaniaItems.thorRing)
+            return 0;
+
+        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
+
+        return (int) ((picLevel * (220 - (10 - picLevel) * 22)) + relic.getAbilityValue(itemStack, "entropy", "capacity"));
+    }
+
+    public static int actualValue() {
+        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+
+        return x * y * z;
     }
 
     @Mod.EventBusSubscriber(Dist.CLIENT)

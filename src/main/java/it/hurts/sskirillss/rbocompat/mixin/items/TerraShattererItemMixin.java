@@ -1,20 +1,25 @@
-package it.hurts.sskirillss.rbocompat.items;
+package it.hurts.sskirillss.rbocompat.mixin.items;
 
-import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.NBTUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
@@ -22,11 +27,42 @@ import java.util.function.Predicate;
 
 import static vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem.isEnabled;
 
-public class TerraShattererItemImplementation {
+@Mixin(TerraShattererItem.class)
+public abstract class TerraShattererItemMixin {
+
+    @Unique
     private static boolean recCall = false;
 
-    public static void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side) {
-        if (!isEnabled(stack)) return;
+    @Inject(method = "inventoryTick", at = @At("HEAD"), remap = false)
+    public void inventoryTick(ItemStack itemStack, Level world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
+        if (itemStack.getTag() != null && !itemStack.getTag().contains("GetXPos") && !itemStack.getTag().contains("GetYPos")
+                && !itemStack.getTag().contains("GetZPos") && !itemStack.getTag().contains("selectMode")) {
+
+            NBTUtils.setInt(itemStack, "GetXPos", 1);
+            NBTUtils.setInt(itemStack, "GetYPos", 1);
+            NBTUtils.setInt(itemStack, "GetZPos", 1);
+
+        }
+    }
+
+    @Inject(method = "breakOtherBlock", at = @At("HEAD"), cancellable = true, remap = false)
+    public void breakOtherBlock(Player player, ItemStack stack, BlockPos pos, BlockPos originPos, Direction side, CallbackInfo ci) {
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(itemStack.getItem() instanceof IRelicItem) || itemStack.getItem() != BotaniaItems.thorRing || !player.getMainHandItem().is(BotaniaItems.terraPick))
+            return;
+
+        breakArea(player, stack, pos, side);
+
+        if (player.isSecondaryUseActive())
+            BotaniaAPI.instance().breakOnAllCursors(player, stack, pos, side);
+
+        ci.cancel();
+    }
+
+    private static void breakArea(Player player, ItemStack stack, BlockPos pos, Direction side) {
+        if (!isEnabled(stack))
+            return;
 
         Level world = player.level();
         Predicate<BlockState> canMine = (state) -> {
@@ -36,7 +72,8 @@ public class TerraShattererItemImplementation {
         };
 
         if (canMine.test(world.getBlockState(pos))) {
-            if (world.isEmptyBlock(pos)) return;
+            if (world.isEmptyBlock(pos))
+                return;
 
             int rangeYHeight = player.getItemInHand(InteractionHand.MAIN_HAND).getTag().getInt("GetYPos");
 
@@ -75,8 +112,8 @@ public class TerraShattererItemImplementation {
 
     }
 
-    public static void removeBlocksInIteration(Player player, ItemStack stack, Level world, BlockPos centerPos,
-                                               Vec3i startDelta, Vec3i endDelta, Predicate<BlockState> filter) {
+    private static void removeBlocksInIteration(Player player, ItemStack stack, Level world, BlockPos centerPos,
+                                                Vec3i startDelta, Vec3i endDelta, Predicate<BlockState> filter) {
         if (recCall)
             return;
 
@@ -94,7 +131,7 @@ public class TerraShattererItemImplementation {
         }
     }
 
-    public static void removeBlockWithDrops(Player player, ItemStack stack, Level world, BlockPos pos, Predicate<BlockState> filter) {
+    private static void removeBlockWithDrops(Player player, ItemStack stack, Level world, BlockPos pos, Predicate<BlockState> filter) {
         if (!world.hasChunkAt(pos))
             return;
 
@@ -109,28 +146,4 @@ public class TerraShattererItemImplementation {
             player.setItemInHand(InteractionHand.MAIN_HAND, save);
         }
     }
-
-    public static int valueBockLimit() {
-        Player player = Minecraft.getInstance().player;
-
-        if (player == null)
-            return 0;
-        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
-
-        if (!(itemStack.getItem() instanceof IRelicItem relic) || itemStack.getItem() != BotaniaItems.thorRing)
-            return 0;
-
-        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
-
-        return (int) ((picLevel * (220 - (10 - picLevel) * 22)) + relic.getAbilityValue(itemStack, "entropy", "capacity"));
-    }
-
-    public static int actualValue() {
-        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
-        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
-        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
-
-        return x * y * z;
-    }
-
 }

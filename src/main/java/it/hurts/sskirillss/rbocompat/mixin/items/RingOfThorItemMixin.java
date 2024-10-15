@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.mixin.items;
 
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.client.OpenScreenPacket;
@@ -54,7 +54,7 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
                                         .build())
                                 .stat(StatData.builder("capacity")
                                         .initialValue(10D, 15D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
                                         .formatValue(value -> (int) MathUtils.round(value, 0))
                                         .build())
                                 .build())
@@ -72,10 +72,10 @@ public class RingOfThorItemMixin extends RelicBaubleItem implements ICurioItem, 
                                 .stat(StatData.builder("capacity")
                                         .initialValue(2D, 5D)
                                         .upgradeModifier(UpgradeOperation.ADD, 1D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 0))
+                                        .formatValue(value -> MathUtils.round(value, 0))
                                         .build())
                                 .build())
-                        .build())
+                       .build())
                 .leveling(new LevelingData(100, 10, 100))
                 .build();
     }

@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.mixin.items;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

@@ -2,8 +2,8 @@ package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.BaseAreaWidget;
-import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
 import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
@@ -39,21 +39,21 @@ public class PlusSwitchWidget extends BaseAreaWidget {
 
         switch (message()) {
             case "x":
-                if ((x + 2) * y * z > TerraShattererItemImplementation.valueBockLimit()) {
+                if ((x + 2) * y * z > MiningAreaScreen.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
             case "y":
-                if (x * (y + 1) * z > TerraShattererItemImplementation.valueBockLimit()) {
+                if (x * (y + 1) * z > MiningAreaScreen.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }
 
                 break;
             case "z":
-                if (x * y * (z + 1) > TerraShattererItemImplementation.valueBockLimit()) {
+                if (x * y * (z + 1) > MiningAreaScreen.valueBockLimit()) {
                     alpha = 0.7F;
                     active = false;
                 }

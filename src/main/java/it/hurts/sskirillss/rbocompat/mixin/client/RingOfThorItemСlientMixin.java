@@ -19,7 +19,7 @@ import vazkii.botania.common.item.relic.RingOfThorItem;
 import java.util.List;
 
 @Mixin(RingOfThorItem.class)
-public class TerraShattererItemClientMixin implements WireframeCoordinateListProvider {
+public class RingOfThorItemСlientMixin implements WireframeCoordinateListProvider {
     @Unique
     private static final String TAG_X_ORIGIN = "xOrigin";
 

@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.mixin.items;
 
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
