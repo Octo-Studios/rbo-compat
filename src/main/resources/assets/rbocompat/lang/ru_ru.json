@@ -50,6 +50,6 @@
   "tooltip.relics.loki_ring.ability.immunity.stat.radius.title": "x",
   "tooltip.relics.loki_ring.ability.immunity.stat.radius.value": "%1$s",
   "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.title": "x",
-  "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.value": "%1$s"
+  "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.value": "%1$s процентов"
 
 }

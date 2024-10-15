@@ -1,5 +1,6 @@
 package it.hurts.sskirillss.rbocompat.mixin.items;
 
+import it.hurts.sskirillss.rbocompat.RBOCompat;
 import it.hurts.sskirillss.rbocompat.entity.PixieEntity;
 import it.hurts.sskirillss.rbocompat.init.EntityRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
@@ -12,12 +13,15 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilityData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -36,7 +41,7 @@ import vazkii.botania.common.item.relic.RingOfLokiItem;
 import java.util.List;
 
 @Mixin(RingOfLokiItem.class)
-public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem {
+public abstract class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, IRelicItem {
 
     public RingOfLokiItemMixin(Properties props) {
         super(props);
@@ -53,24 +58,19 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
                                 .stat(StatData.builder("efficiency")
                                         .initialValue(0.1D, 1D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
-                                        .formatValue(value -> (int) MathUtils.round(value * 10, 1))
+                                        .formatValue(value -> MathUtils.round(value * 10, 1))
                                         .build())
                                 .stat(StatData.builder("duration")
                                         .initialValue(1D, 10D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 1D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
+                                        .formatValue(value -> (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
                         .ability(AbilityData.builder("immunity")
                                 .stat(StatData.builder("radius")
-                                        .initialValue(1D, 5D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
-                                        .formatValue(Double::doubleValue)
-                                        .build())
-                                .stat(StatData.builder("efficiency")
-                                        .initialValue(1D, 5D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
-                                        .formatValue(value -> (int) (MathUtils.round(value, 1)))
+                                        .initialValue(3D, 5D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
+                                        .formatValue(value -> (MathUtils.round(value, 1)))
                                         .build())
                                 .build())
                         .build())
@@ -98,26 +98,26 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (!(slotContext.entity() instanceof Player player)) return;
+        if (!(slotContext.entity() instanceof Player player))
+            return;
 
-        Level world = player.level();
+        RBOCompat.curioTick(slotContext, stack, gatherMobs(slotContext.entity().level(), player, stack), getAbilityValue(stack, "immunity", "radius"));
 
-        for (Mob entity : gatherMobs(world, player, stack)) {
-            if (entity instanceof PixieEntity) return;
 
-            AttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-
-            if (!entity.getPersistentData().contains("OriginalSpeed"))
-                entity.getPersistentData().putDouble("OriginalSpeed", speedAttribute.getBaseValue());
-
-            double originalSpeed = entity.getPersistentData().getDouble("OriginalSpeed");
-
-            if (player.distanceTo(entity) <= this.getAbilityValue(stack, "immunity", "radius")) {
-                speedAttribute.setBaseValue(originalSpeed * Math.max(0.2, 1 - (player.distanceTo(entity) * this.getAbilityValue(stack, "immunity", "efficiency"))));
-            } else {
-                speedAttribute.setBaseValue(originalSpeed);
-            }
-        }
+//        for (Mob entity : gatherMobs(slotContext.entity().level(), player, stack)) {
+//            if (entity instanceof PixieEntity)
+//                return;
+//
+//            double distance = player.distanceTo(entity);
+//            double radius = getAbilityValue(stack, "immunity", "radius");
+//            if (distance <= radius) {
+//                float reductionFactor = (float) (0.25 + ((radius - distance) / 10));
+//
+//                EntityUtils.applyAttribute(entity, stack, Attributes.MOVEMENT_SPEED, -reductionFactor, AttributeModifier.Operation.MULTIPLY_TOTAL);
+//            } else {
+//                EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.MULTIPLY_TOTAL);
+//            }
+//        }
     }
 
     @Override
@@ -127,8 +127,7 @@ public class RingOfLokiItemMixin extends RelicBaubleItem implements ICurioItem, 
             return;
 
         for (Mob entity : gatherMobs(player.level(), player, stack)) {
-            if (entity.getPersistentData().contains("OriginalSpeed"))
-                entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(entity.getPersistentData().getFloat("OriginalSpeed"));
+            EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.MULTIPLY_TOTAL);
         }
 
         for (Entity entity : player.level().getEntities(player, new AABB(player.blockPosition()).inflate(10))) {
