@@ -1,39 +1,47 @@
 package it.hurts.sskirillss.rbocompat.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.IScrollingScreen;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.CancelSelectionModeWidget;
 import it.hurts.sskirillss.rbocompat.client.screen.widgets.ConfirmSelectionModeWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.CentralPanelBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.LeftSwitchBaseWidget;
-import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base.RightSwitchBaseWidget;
-import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.CentralPanelBaseWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.MinusSwitchWidget;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.PlusSwitchWidget;
+import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
+import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import it.hurts.sskirillss.relics.client.screen.description.data.ExperienceParticleData;
 import it.hurts.sskirillss.relics.client.screen.utils.ParticleStorage;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import vazkii.botania.common.item.BotaniaItems;
+import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
 
 import java.awt.*;
 
 public class MiningAreaScreen extends Screen {
-    private final Minecraft MC = Minecraft.getInstance();
+    Minecraft minecraft = Minecraft.getInstance();
 
     public MiningAreaScreen() {
         super(Component.literal("MiningAreaScreen"));
@@ -42,10 +50,14 @@ public class MiningAreaScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+
+        if (minecraft.player == null)
+            return;
+
         int x = getTextureCenter()[0];
         int y = getTextureCenter()[1];
 
-        RandomSource random = MC.player.getRandom();
+        RandomSource random = minecraft.player.getRandom();
         int xOff = random.nextInt(25);
 
         ParticleStorage.addParticle(this, new ExperienceParticleData(new Color(0x9B1D8F),
@@ -73,62 +85,98 @@ public class MiningAreaScreen extends Screen {
         int button1Height = 21;
 
         int[] buttonPos1 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 46);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height, Component.literal("x")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos1[0], buttonPos1[1], button1Width, button1Height,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.x")));
 
         int[] buttonPos2 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 70);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height, Component.literal("y")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos2[0], buttonPos2[1], button1Width, button1Height,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.y")));
 
         int[] buttonPos3 = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 148, 93);
-        this.addRenderableWidget(new LeftSwitchBaseWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height, Component.literal("z")));
+        this.addRenderableWidget(new MinusSwitchWidget(buttonPos3[0], buttonPos3[1], button1Width, button1Height,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.minus.z")));
 
         int[] buttonPos1Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 46);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height, Component.literal("x")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos1Left[0], buttonPos1Left[1], button1Width, button1Height,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.x")));
 
         int[] buttonPos2Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 70);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height, Component.literal("y")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos2Left[0], buttonPos2Left[1], button1Width, button1Height,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.y")));
 
         int[] buttonPos3Left = calculateButtonPosition(centerX, centerY, button1Width, button1Height, 238, 93);
-        this.addRenderableWidget(new RightSwitchBaseWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height, Component.literal("z")));
+        this.addRenderableWidget(new PlusSwitchWidget(buttonPos3Left[0], buttonPos3Left[1], button1Width, button1Height,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.plus.z")));
 
         int buttonCentralWidth = 66;
         int buttonCentralHeight = 21;
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight, Component.literal("x")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.x")));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight, Component.literal("y")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.y")));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
-        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight, Component.literal("z")));
+        this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight,
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.z")));
 
         int button2Width = 35;
         int button2Height = 34;
 
         int[] button2Pos = calculateButtonPosition(centerX, centerY, button2Width, button2Height, 212, 126);
 
-        this.addRenderableWidget(new ConfirmSelectionModeWidget(button2Pos[0], button2Pos[1], button2Width, button2Height));
+        this.addRenderableWidget(new ConfirmSelectionModeWidget(button2Pos[0], button2Pos[1], button2Width, button2Height))
+                .setTooltip(Tooltip.create(Component.translatable("screen.terra.area.confirm")));
 
         int[] button1Pos = calculateButtonPosition(centerX, centerY, button2Width, button2Height, 172, 126);
-        this.addRenderableWidget(new CancelSelectionModeWidget(button1Pos[0], button1Pos[1], button2Width, button2Height));
+        this.addRenderableWidget(new CancelSelectionModeWidget(button1Pos[0], button1Pos[1], button2Width, button2Height))
+                .setTooltip(Tooltip.create(Component.translatable("screen.terra.area.cancel")));
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics pGuiGraphics) {
+        super.renderBackground(pGuiGraphics);
+        Player player = minecraft.player;
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(stack.getItem() instanceof IRelicItem) || stack.getItem() != BotaniaItems.thorRing)
+            return;
+
+        PoseStack poseStack = pGuiGraphics.pose();
+
+        float pPartialTick = Minecraft.getInstance().getFrameTime();
+        float scale = 4.5F;
+
+        poseStack.pushPose();
+
+        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 90, 100);
+        poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+
+        poseStack.mulPose(Axis.YP.rotationDegrees((player.tickCount + pPartialTick) * 1.5F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(-45));
+
+        poseStack.translate(-8 * scale, -8 * scale, -150 * scale);
+
+        poseStack.scale(scale, scale, scale);
+
+        pGuiGraphics.renderItem(player.getItemInHand(InteractionHand.MAIN_HAND), 0, 0);
+
+        poseStack.popPose();
     }
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pGuiGraphics);
-
-        Player player = MC.player;
-
-        ItemStack stack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
-
-        if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.thorRing)
-            return;
+        renderBackground(pGuiGraphics);
 
         ResourceLocation texture = new ResourceLocation(RBOCompat.MODID, "textures/gui/mining_area_main_screen.png");
 
-        TextureManager manager = MC.getTextureManager();
+        TextureManager manager = minecraft.getTextureManager();
 
-        PoseStack poseStack = new PoseStack();
+        PoseStack poseStack = pGuiGraphics.pose();
 
         poseStack.pushPose();
 
@@ -143,34 +191,33 @@ public class MiningAreaScreen extends Screen {
         manager.bindForSetup(texture);
         pGuiGraphics.blit(texture, centerX, centerY, textureWidth / scale, textureHeight / scale, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
 
-        ItemRenderer itemRenderer = MC.getItemRenderer();
-
         poseStack.popPose();
 
         poseStack.pushPose();
 
-        poseStack.translate(centerX + 83, centerY + 85, 100);
-        poseStack.translate(0, Math.sin((MC.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
+        float scaleText = 1.3F;
+        int centerTextX = (int) ((centerX + 293) / scaleText);
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(MC.level.getGameTime() % 360 + pPartialTick));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-135));
+        poseStack.scale(scaleText, scaleText, scaleText);
 
-        poseStack.scale(74, 74, 74);
-        Lighting.setupForFlatItems();
+        int actualValue = actualValue();
+        int valueBockLimit = valueBockLimit();
+        int color;
 
-        MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
+        String valueFlow = String.valueOf(actualValue);
 
-        itemRenderer.renderStatic(new ItemStack(BotaniaItems.terraPick), ItemDisplayContext.GUI, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, MC.level, 0);
-        Lighting.setupFor3DItems();
+        if (actualValue + (actualValue * 0.1F) >= valueBockLimit)
+            color = 0xEF5350;
+        else if (actualValue + (actualValue * 0.3F) >= valueBockLimit)
+            color = 0xFFFF00;
+        else
+            color = 0x8ACE5A;
 
-        poseStack.popPose();
+        pGuiGraphics.drawString(minecraft.font, valueFlow, centerTextX - (minecraft.font.width(valueFlow) / 2) + 8, (int) ((centerY + 52) / scaleText), color);
 
-        poseStack.pushPose();
+        String valueLimit = String.valueOf(valueBockLimit);
 
-        pGuiGraphics.drawString(MC.font, String.valueOf(TerraShattererItemImplementation.actualValue()), centerX + 303 - (MC.font.width(String.valueOf(TerraShattererItemImplementation.actualValue())) / 2), centerY + 53, 0xFFFFFF);
-
-        String value = String.valueOf(TerraShattererItemImplementation.sumTotalBlocks());
-        pGuiGraphics.drawString(MC.font, value, centerX + 303 - (MC.font.width(value) / 2), centerY + 77, 0xFFFFFF);
+        pGuiGraphics.drawString(minecraft.font, valueLimit, centerTextX - (minecraft.font.width(valueLimit) / 2) + 8, (int) ((centerY + 76) / scaleText), 0x8ACE5A);
 
         poseStack.popPose();
 
@@ -179,7 +226,7 @@ public class MiningAreaScreen extends Screen {
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        if (MC.options.keyInventory.isActiveAndMatches(InputConstants.getKey(pKeyCode, pScanCode))) {
+        if (minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(pKeyCode, pScanCode))) {
             this.onClose();
 
             return true;
@@ -194,15 +241,12 @@ public class MiningAreaScreen extends Screen {
     }
 
     private int[] getTextureCenter() {
-        int scale = 2;
-        int textureWidth = 700;
-        int textureHeight = 350;
+        int textureWidth = 350;
+        int textureHeight = 175;
 
-        int screenWidth = MC.getWindow().getGuiScaledWidth();
-        int screenHeight = MC.getWindow().getGuiScaledHeight();
 
-        int x = (screenWidth - textureWidth / scale) / 2;
-        int y = (screenHeight - textureHeight / scale) / 2 - 20;
+        int x = (this.width - textureWidth) / 2;
+        int y = (this.height - textureHeight) / 2;
 
         return new int[]{x, y};
     }
@@ -211,5 +255,78 @@ public class MiningAreaScreen extends Screen {
         int x = centerX - buttonWidth / 2 + offsetX;
         int y = centerY - buttonHeight / 2 + offsetY;
         return new int[]{x, y};
+    }
+
+    public static int valueBockLimit() {
+        Player player = Minecraft.getInstance().player;
+
+        if (player == null)
+            return 0;
+
+        ItemStack itemStack = EntityUtils.findEquippedCurio(player, BotaniaItems.thorRing);
+
+        if (!(itemStack.getItem() instanceof IRelicItem relic) || itemStack.getItem() != BotaniaItems.thorRing)
+            return 0;
+
+        int picLevel = TerraShattererItem.getLevel(player.getItemInHand(InteractionHand.MAIN_HAND));
+
+        return (int) ((picLevel * (220 - (10 - picLevel) * 22)) + relic.getAbilityValue(itemStack, "entropy", "capacity"));
+    }
+
+    public static int actualValue() {
+        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+
+        return x * y * z;
+    }
+
+    @Mod.EventBusSubscriber(Dist.CLIENT)
+    public static class MiningScreenEvent {
+
+        @SubscribeEvent
+        public static void onScrollEvent(ScreenEvent.MouseScrolled.Pre event) {
+            if (!(event.getScreen() instanceof MiningAreaScreen))
+                return;
+
+            double mouseX = event.getMouseX();
+            double mouseY = event.getMouseY();
+
+            for (Renderable widget : event.getScreen().renderables) {
+                if (!(widget instanceof IScrollingScreen button)) return;
+
+                int xButton = button.x();
+                int yButton = button.y();
+
+                if (mouseX >= xButton && mouseX <= xButton + button.width() && mouseY >= yButton && mouseY <= yButton + button.height()) {
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+
+                    if (event.getScrollDelta() == 1) {
+                        switch (button.message()) {
+                            case "x":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(2, 0, 0));
+                                break;
+                            case "y":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 1, 0));
+                                break;
+                            case "z":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, 1));
+                                break;
+                        }
+                    } else
+                        switch (button.message()) {
+                            case "x":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
+                                break;
+                            case "y":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
+                                break;
+                            case "z":
+                                NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
+                                break;
+                        }
+                }
+            }
+        }
     }
 }

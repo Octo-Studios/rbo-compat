@@ -7,13 +7,13 @@
   "mixins": [
     "BotaniaAPIImplMixin",
     "RelicBaubleItemMixin",
-    "TerraShattererItemMixin",
-    "init.BotaniaItemsMixin",
-    "item.RingOfLokiItemMixin",
-    "item.RingOfOdinItemMixin",
-    "item.RingOfThorItemMixin"
+    "items.TerraShattererItemMixin",
+    "items.RingOfLokiItemMixin",
+    "items.RingOfOdinItemMixin",
+    "items.RingOfThorItemMixin"
   ],
   "client": [
+    "client.RingOfThorItemСlientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

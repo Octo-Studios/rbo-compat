@@ -1,4 +1,4 @@
-package it.hurts.sskirillss.rbocompat.mixin.item;
+package it.hurts.sskirillss.rbocompat.mixin.items;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -34,8 +34,6 @@ import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.relic.KeyOfTheKingsLawItem;
 import vazkii.botania.common.item.relic.RelicItem;
-
-import java.util.Random;
 
 @Mixin(KeyOfTheKingsLawItem.class)
 public class KeyOfTheKingsLawItemMixin extends RelicItem implements ICurioItem, IRelicItem {

@@ -1,4 +1,19 @@
 {
+  "screen.terra.area.minus.x": "",
+  "screen.terra.area.minus.y": "",
+  "screen.terra.area.minus.z": "",
+
+  "screen.terra.area.plus.x": "",
+  "screen.terra.area.plus.z": "",
+  "screen.terra.area.plus.y": "",
+
+  "screen.terra.area.cancel": "",
+  "screen.terra.area.confirm": "",
+
+  "screen.terra.area.center.x": "",
+  "screen.terra.area.center.y": "",
+  "screen.terra.area.center.z": "",
+
   "tooltip.relics.thor_ring.description": "X",
   "tooltip.relics.thor_ring.ability.entropy": "x",
   "tooltip.relics.thor_ring.ability.entropy.description": "x",

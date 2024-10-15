@@ -1,11 +1,7 @@
 package it.hurts.sskirillss.rbocompat.events;
 
-import it.hurts.sskirillss.rbocompat.client.screen.MiningAreaScreen;
-import it.hurts.sskirillss.rbocompat.items.TerraShattererItemImplementation;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.NBTUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,14 +17,14 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-import oshi.software.os.mac.MacInternetProtocolStats;
 import vazkii.botania.api.block.Bound;
 import vazkii.botania.api.mana.ManaItemHandler;
 import vazkii.botania.common.advancements.LokiPlaceTrigger;
@@ -80,18 +76,6 @@ public class RingOfThorItemEvent {
             return;
 
         event.setNewSpeed(event.getOriginalSpeed() + (consecutiveBlocksMined * 0.3f));
-    }
-
-    public static double getPickaxeEfficiency(Player player) {
-        ItemStack heldItem = player.getMainHandItem();
-
-        double calculate = heldItem.getItem().getDestroySpeed(new ItemStack(heldItem.getItem()), player.getBlockStateOn()) + (consecutiveBlocksMined * 0.3f);
-        double baseValue = 1600;
-        double decrementPerUnit = 200;
-
-        if (calculate <= 2) return baseValue;
-
-        return 550 + ((baseValue + calculate + decrementPerUnit) / calculate);
     }
 
     @SubscribeEvent
@@ -210,6 +194,7 @@ public class RingOfThorItemEvent {
         cmp.putInt(TAG_X_OFFSET, pos.getX());
         cmp.putInt(TAG_Y_OFFSET, pos.getY());
         cmp.putInt(TAG_Z_OFFSET, pos.getZ());
+
         return cmp;
     }
 
@@ -238,5 +223,17 @@ public class RingOfThorItemEvent {
         ItemNBTHelper.setInt(stack, TAG_X_ORIGIN, pos.getX());
         ItemNBTHelper.setInt(stack, TAG_Y_ORIGIN, pos.getY());
         ItemNBTHelper.setInt(stack, TAG_Z_ORIGIN, pos.getZ());
+    }
+
+    public static double getPickaxeEfficiency(Player player) {
+        ItemStack heldItem = player.getMainHandItem();
+
+        double calculate = heldItem.getItem().getDestroySpeed(new ItemStack(heldItem.getItem()), player.getBlockStateOn()) + (consecutiveBlocksMined * 0.3f);
+        double baseValue = 1600;
+        double decrementPerUnit = 200;
+
+        if (calculate <= 2) return baseValue;
+
+        return 550 + ((baseValue + calculate + decrementPerUnit) / calculate);
     }
 }

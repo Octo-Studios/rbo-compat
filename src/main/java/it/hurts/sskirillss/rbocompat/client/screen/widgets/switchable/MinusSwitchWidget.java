@@ -1,24 +1,23 @@
-package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable.base;
+package it.hurts.sskirillss.rbocompat.client.screen.widgets.switchable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.hurts.sskirillss.rbocompat.RBOCompat;
+import it.hurts.sskirillss.rbocompat.client.screen.widgets.BaseAreaWidget;
 import it.hurts.sskirillss.rbocompat.network.NetworkHandler;
 import it.hurts.sskirillss.rbocompat.network.packet.UpdateItemStackPacket;
-import it.hurts.sskirillss.rbocompat.utils.InventoryUtil;
+import it.hurts.sskirillss.rbocompat.utils.ClientInventoryUtil;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import vazkii.botania.common.item.BotaniaItems;
 
-public class LeftSwitchBaseWidget extends AbstractButton {
+public class MinusSwitchWidget extends BaseAreaWidget {
 
-    public LeftSwitchBaseWidget(int x, int y, int width, int height, Component component) {
+    public MinusSwitchWidget(int x, int y, int width, int height, Component component) {
         super(x, y, width, height, component);
     }
 
@@ -30,26 +29,26 @@ public class LeftSwitchBaseWidget extends AbstractButton {
 
         float alpha = 1F;
 
-        int x = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
-        int y = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
-        int z = InventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
+        int x = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetXPos");
+        int y = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetYPos");
+        int z = ClientInventoryUtil.getItemStackTerraPix().getTag().getInt("GetZPos");
 
-        switch (this.getMessage().toString().replace("literal", "")) {
-            case "{x}":
+        switch (message()) {
+            case "x":
                 if (x <= 1) {
                     active = false;
                     alpha = 0.7F;
                 }
 
                 break;
-            case "{y}":
+            case "y":
                 if (y <= 1) {
                     active = false;
                     alpha = 0.7F;
                 }
 
                 break;
-            case "{z}":
+            case "z":
                 if (z <= 1) {
                     active = false;
                     alpha = 0.7F;
@@ -90,24 +89,16 @@ public class LeftSwitchBaseWidget extends AbstractButton {
         return super.mouseScrolled(mouseX, mouseY, scrollAmount);
     }
 
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
-
-    }
-
     public void setRemoveVolume() {
-        switch (this.getMessage().toString().replace("literal", "")) {
-            case "{x}":
+        switch (message()) {
+            case "x":
                 NetworkHandler.sendToServer(new UpdateItemStackPacket(-2, 0, 0));
-
                 break;
-            case "{y}":
+            case "y":
                 NetworkHandler.sendToServer(new UpdateItemStackPacket(0, -1, 0));
-
                 break;
-            case "{z}":
+            case "z":
                 NetworkHandler.sendToServer(new UpdateItemStackPacket(0, 0, -1));
-
                 break;
         }
     }

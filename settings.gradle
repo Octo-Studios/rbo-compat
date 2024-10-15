@@ -9,6 +9,9 @@ pluginManagement {
             url = 'https://maven.neoforged.net/releases'
         }
     }
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '1.9.23'
+    }
 }
 
 plugins {
