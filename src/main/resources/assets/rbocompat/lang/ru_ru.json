@@ -1,12 +1,18 @@
 {
-  "screen.terra.area.minus.x": "Отнимает по длине",
+  "screen.terra.area.minus.x": "Отнимает по ширине",
   "screen.terra.area.minus.y": "Отнимает по высоте",
   "screen.terra.area.minus.z": "Отнимает по глубине",
-  "screen.terra.area.plus.x": "Прибавляет по длине",
+
+  "screen.terra.area.plus.x": "Прибавляет по ширине",
   "screen.terra.area.plus.z": "Прибавляет по высоте",
   "screen.terra.area.plus.y": "Прибавляет по глубине",
-  "screen.terra.area.cancel": "Отмена режима выделения",
+
+  "screen.terra.area.cancel": "Отключение режима выделения",
   "screen.terra.area.confirm": "Включение режима выделения",
+
+  "screen.terra.area.center.x": "Количество блоков по ширине",
+  "screen.terra.area.center.y": "Количество блоков по высоте",
+  "screen.terra.area.center.z": "Количество блоков по глубине",
 
   "tooltip.relics.thor_ring.description": "X",
   "tooltip.relics.thor_ring.ability.entropy": "x",
@@ -16,34 +22,34 @@
   "tooltip.relics.thor_ring.ability.revelation": "x",
   "tooltip.relics.thor_ring.ability.revelation.description": "x",
   "tooltip.relics.thor_ring.ability.revelation.stat.radius.title": "x",
-  "tooltip.relics.thor_ring.ability.revelation.stat.radius.value": "x",
+  "tooltip.relics.thor_ring.ability.revelation.stat.radius.value": "%1$s",
   "tooltip.relics.thor_ring.ability.rumble": "x",
   "tooltip.relics.thor_ring.ability.rumble.description": "x",
   "tooltip.relics.thor_ring.ability.rumble.stat.capacity.title": "x",
-  "tooltip.relics.thor_ring.ability.rumble.stat.capacity.value": "x",
+  "tooltip.relics.thor_ring.ability.rumble.stat.capacity.value": "%1$s",
 
   "tooltip.relics.odin_ring.description": "X",
   "tooltip.relics.odin_ring.ability.heart": "x",
   "tooltip.relics.odin_ring.ability.heart.description": "x",
   "tooltip.relics.odin_ring.ability.heart.stat.amount.title": "x",
-  "tooltip.relics.odin_ring.ability.heart.stat.amount.value": "x",
+  "tooltip.relics.odin_ring.ability.heart.stat.amount.value": "%1$s",
   "tooltip.relics.odin_ring.ability.retribution": "x",
   "tooltip.relics.odin_ring.ability.retribution.description": "x",
   "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.title": "x",
-  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.value": "x",
+  "tooltip.relics.odin_ring.ability.retribution.stat.multiplier.value": "%1$s",
 
   "tooltip.relics.loki_ring.description": "X",
   "tooltip.relics.loki_ring.ability.guardian": "x",
   "tooltip.relics.loki_ring.ability.guardian.description": "x",
   "tooltip.relics.loki_ring.ability.guardian.stat.efficiency.title": "x",
-  "tooltip.relics.loki_ring.ability.guardian.stat.efficiency.value": "x",
+  "tooltip.relics.loki_ring.ability.guardian.stat.efficiency.value": "%1$s",
   "tooltip.relics.loki_ring.ability.guardian.stat.duration.title": "x",
-  "tooltip.relics.loki_ring.ability.guardian.stat.duration.value": "x",
+  "tooltip.relics.loki_ring.ability.guardian.stat.duration.value": "%1$s",
   "tooltip.relics.loki_ring.ability.immunity": "x",
   "tooltip.relics.loki_ring.ability.immunity.description": "x",
   "tooltip.relics.loki_ring.ability.immunity.stat.radius.title": "x",
-  "tooltip.relics.loki_ring.ability.immunity.stat.radius.value": "x",
+  "tooltip.relics.loki_ring.ability.immunity.stat.radius.value": "%1$s",
   "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.title": "x",
-  "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.value": "x"
+  "tooltip.relics.loki_ring.ability.immunity.stat.efficiency.value": "%1$s"
 
 }

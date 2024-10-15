@@ -113,15 +113,15 @@ public class MiningAreaScreen extends Screen {
 
         int[] buttonPosCentral1 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 46);
         this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral1[0], buttonPosCentral1[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal("x"))).setTooltip(Tooltip.create(Component.literal("")));
+                Component.literal("x"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.x")));
 
         int[] buttonPosCentral2 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 70);
         this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral2[0], buttonPosCentral2[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal("y"))).setTooltip(Tooltip.create(Component.literal("")));
+                Component.literal("y"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.y")));
 
         int[] buttonPosCentral3 = calculateButtonPosition(centerX, centerY, buttonCentralWidth, buttonCentralHeight, 193, 93);
         this.addRenderableWidget(new CentralPanelBaseWidget(buttonPosCentral3[0], buttonPosCentral3[1], buttonCentralWidth, buttonCentralHeight,
-                Component.literal("z"))).setTooltip(Tooltip.create(Component.literal("")));
+                Component.literal("z"))).setTooltip(Tooltip.create(Component.translatable("screen.terra.area.center.z")));
 
         int button2Width = 35;
         int button2Height = 34;
@@ -153,7 +153,7 @@ public class MiningAreaScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 87, 100);
+        poseStack.translate(getTextureCenter()[0] + 80, getTextureCenter()[1] + 90, 100);
         poseStack.translate(0, Math.sin((minecraft.level.getGameTime() + pPartialTick) / 20.0) * 2.0f, 0);
 
         poseStack.mulPose(Axis.YP.rotationDegrees((player.tickCount + pPartialTick) * 1.5F));
@@ -206,9 +206,9 @@ public class MiningAreaScreen extends Screen {
 
         String valueFlow = String.valueOf(actualValue);
 
-        if (actualValue + 10 > valueBockLimit)
+        if (actualValue + (actualValue * 0.1F) >= valueBockLimit)
             color = 0xEF5350;
-        else if (actualValue + (actualValue * 0.2F) >= valueBockLimit)
+        else if (actualValue + (actualValue * 0.3F) >= valueBockLimit)
             color = 0xFFFF00;
         else
             color = 0x8ACE5A;

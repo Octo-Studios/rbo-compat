@@ -28,8 +28,8 @@ public class RingOfOdinItemEvent {
         if (!(stack.getItem() instanceof IRelicItem relic) || stack.getItem() != BotaniaItems.odinRing)
             return;
 
-        double multiplier = relic.getAbilityValue(stack, "retribution", "multiplier") / 100;
-        int manaCost = (int) Math.round(multiplier * 1000);
+        int manaCost = 10000;
+        double multiplier = relic.getAbilityValue(stack, "retribution", "multiplier");
 
         if (!ManaUtil.hasEnoughMana(player, manaCost))
             return;

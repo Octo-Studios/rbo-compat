@@ -26,7 +26,8 @@ public class ManaUtil {
     }
 
     public static void consumeMana(Player player, int amount) {
-        if (player == null || amount <= 0) return;
+        if (player == null || amount <= 0)
+            return;
 
         getFirstManaItem(player).ifPresent(stack -> ManaItemHandler.instance().requestMana(stack, player, amount, true));
     }
