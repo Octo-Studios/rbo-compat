@@ -15,7 +15,10 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.StatData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,6 +42,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import vazkii.botania.common.item.relic.RelicBaubleItem;
 import vazkii.botania.common.item.relic.RingOfLokiItem;
 
+import java.awt.*;
 import java.util.List;
 
 @Mixin(RingOfLokiItem.class)
@@ -101,23 +106,48 @@ public abstract class RingOfLokiItemMixin extends RelicBaubleItem implements ICu
         if (!(slotContext.entity() instanceof Player player))
             return;
 
-        RBOCompat.curioTick(slotContext, stack, gatherMobs(slotContext.entity().level(), player, stack), getAbilityValue(stack, "immunity", "radius"));
+        for (Mob entity : gatherMobs(slotContext.entity().level(), player, stack)) {
+            if (entity instanceof PixieEntity)
+                return;
 
+            double distance = player.distanceTo(entity);
+            double radius = getAbilityValue(stack, "immunity", "radius");
 
-//        for (Mob entity : gatherMobs(slotContext.entity().level(), player, stack)) {
-//            if (entity instanceof PixieEntity)
-//                return;
-//
-//            double distance = player.distanceTo(entity);
-//            double radius = getAbilityValue(stack, "immunity", "radius");
-//            if (distance <= radius) {
-//                float reductionFactor = (float) (0.25 + ((radius - distance) / 10));
-//
-//                EntityUtils.applyAttribute(entity, stack, Attributes.MOVEMENT_SPEED, -reductionFactor, AttributeModifier.Operation.MULTIPLY_TOTAL);
-//            } else {
-//                EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.MULTIPLY_TOTAL);
-//            }
-//        }
+            if (distance <= radius) {
+                float reductionFactor = (float) (0.25 + ((radius - distance) / 10));
+
+                EntityUtils.applyAttribute(entity, stack, Attributes.MOVEMENT_SPEED, -reductionFactor, AttributeModifier.Operation.MULTIPLY_TOTAL);
+                spawnParticles(player.level(), player, entity, radius, distance);
+            } else {
+                EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.MULTIPLY_TOTAL);
+            }
+        }
+    }
+
+    private static void spawnParticles(Level level, Player player, Mob mob, double radius, double distance) {
+        if (level.isClientSide)
+            return;
+
+        int particleCount = 20;
+
+        Vec3 directionToPlayer = player.position().subtract(mob.position()).normalize();
+
+        double angleToPlayer = Math.atan2(directionToPlayer.z, directionToPlayer.x);
+        double arcAngle = Math.PI / 2;
+        double angleStep = arcAngle / particleCount;
+
+        for (int i = 0; i < particleCount; i++) {
+            double angle = angleToPlayer - arcAngle / 2 + angleStep * i;
+
+            RandomSource random = player.getRandom();
+
+            ((ServerLevel) level).sendParticles(ParticleUtils.constructSimpleSpark(
+                            new Color(random.nextInt(50), 100 + random.nextInt(155), random.nextInt(50)),
+                            (float) ((radius - distance) / 10), 1, 0),
+                    mob.getX() + Math.cos(angle), mob.getY() + 0.2, mob.getZ() + Math.sin(angle),
+                    1, 0, 0, 0, 0
+            );
+        }
     }
 
     @Override
